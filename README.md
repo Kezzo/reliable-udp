@@ -1,4 +1,4 @@
-[![Tests](https://github.com/Kezzo/reliable-udp/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/Kezzo/reliable-udp/actions/workflows/run-tests.yml)
+[![Tests](https://github.com/Kezzo/reliable-udp/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Kezzo/reliable-udp/actions/workflows/tests.yml)
 
 # Reliable UDP
 
