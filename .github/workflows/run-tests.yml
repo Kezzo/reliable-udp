@@ -1,7 +1,5 @@
 name: run-tests
 on: [push]
-env:
-  DOTNET_VERSION: '5.0.403'
 
 jobs:
   build-and-test:
@@ -17,7 +15,8 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: '6.0.x'
+        include-prerelease: true
 
     - name: Install dependencies
       run: dotnet restore
