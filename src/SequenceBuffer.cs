@@ -37,6 +37,12 @@ public class SequenceBuffer<T> where T : class
         }
     }
 
+    public void RemoveEntry(UInt16 sequence)
+    {
+        int index = GetBufferIndex(sequence);
+        sequenceBuffer[index] = UInt32.MaxValue;
+    }
+
     private int GetBufferIndex(UInt16 sequence)
     {
         return sequence % this.bufferSize;
