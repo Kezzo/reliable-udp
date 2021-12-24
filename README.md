@@ -4,3 +4,10 @@
 
 .NET library that implements reliable UDP based on Gaffer on Games design:
 https://gafferongames.com/post/reliable_ordered_messages/
+
+The library guarantees that messages are:
+- received in order
+- sent reliably
+- received without duplicates
+
+The library does not exercise head of line blocking, but rather re-sends messages until they're received. More recent messages are still continously sent and when received they're buffered and made available once the previous lost message has arrived.
