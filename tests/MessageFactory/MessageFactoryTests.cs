@@ -1,4 +1,6 @@
 using System.IO;
+using ReliableUDP.MessageFactory;
+using ReliableUDP.Messages;
 using ReliableUDP.Tests.Mocks;
 using Xunit;
 

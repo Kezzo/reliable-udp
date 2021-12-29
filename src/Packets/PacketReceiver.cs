@@ -1,3 +1,5 @@
+using ReliableUDP.SequenceBuffer;
+
 namespace ReliableUDP.Packets;
 
 public class PacketReceiver

@@ -1,4 +1,5 @@
 using System;
+using ReliableUDP.SequenceBuffer;
 using Xunit;
 
 namespace ReliableUDP.Tests;

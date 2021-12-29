@@ -1,4 +1,4 @@
-namespace ReliableUDP;
+namespace ReliableUDP.Messages;
 
 public abstract class BaseMessage
 {

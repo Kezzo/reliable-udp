@@ -1,4 +1,6 @@
-namespace ReliableUDP;
+using ReliableUDP.Messages;
+
+namespace ReliableUDP.MessageFactory;
 
 public interface IMessageFactory
 {

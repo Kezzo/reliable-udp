@@ -1,4 +1,4 @@
-namespace ReliableUDP;
+namespace ReliableUDP.SequenceBuffer;
 
 public class SequenceBuffer<T> where T : class
 {
