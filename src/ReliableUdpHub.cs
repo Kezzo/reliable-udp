@@ -3,12 +3,12 @@ using ReliableUDP.Messages;
 
 namespace ReliableUDP;
 
-public class MessageHub
+public class ReliableUdpHub
 {
     private readonly MessageSender sender;
     private readonly MessageReceiver receiver;
 
-    public MessageHub(IUdpClient udpClient)
+    public ReliableUdpHub(IUdpClient udpClient)
     {
         sender = new MessageSender(udpClient);
         receiver = new MessageReceiver(udpClient);
