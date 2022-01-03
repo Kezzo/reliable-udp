@@ -1,39 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using ReliableUDP.MessageFactory;
 using ReliableUDP.Messages;
 
-namespace ReliableUDP;
-
-public class ReliableUdpHub
+namespace ReliableUDP
 {
-    private readonly MessageSender sender;
-    private readonly MessageReceiver receiver;
-
-    public ReliableUdpHub(IUdpClient udpClient)
+    public class ReliableUdpHub
     {
-        sender = new MessageSender(udpClient);
-        receiver = new MessageReceiver(udpClient);
-    }
+        private readonly MessageSender sender;
+        private readonly MessageReceiver receiver;
 
-    public void RegisterMessageFactory<T>(byte messageTypeId, IMessageFactory factory)
-    {
-        receiver.RegisterMessageFactory<T>(messageTypeId, factory);
-    }
+        public ReliableUdpHub(IUdpClient udpClient)
+        {
+            sender = new MessageSender(udpClient);
+            receiver = new MessageReceiver(udpClient);
+        }
 
-    public void QueueMessage(BaseMessage message)
-    {
-        sender.QueueMessage(message);
-    }
+        public void RegisterMessageFactory<T>(byte messageTypeId, IMessageFactory factory)
+        {
+            receiver.RegisterMessageFactory<T>(messageTypeId, factory);
+        }
 
-    public Task SendQueuedMessages()
-    {
-        return sender.SendQueuedMessages(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), 
-            receiver.CreateNextHeader());
-    }
+        public void QueueMessage(BaseMessage message)
+        {
+            sender.QueueMessage(message);
+        }
 
-    public async Task<List<BaseMessage>?> GetReceivedMessages()
-    {
-        var acks = await receiver.ReceiveAllPackets();
-        sender.AckMessages(acks);
-        return receiver.GetReceivedMessages();
+        public Task SendQueuedMessages()
+        {
+            long utcTimestamp = (long) (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
+            return sender.SendQueuedMessages(utcTimestamp, receiver.CreateNextHeader());
+        }
+
+        public async Task<List<BaseMessage>> GetReceivedMessages()
+        {
+            var acks = await receiver.ReceiveAllPackets();
+            sender.AckMessages(acks);
+            return receiver.GetReceivedMessages();
+        }
     }
 }

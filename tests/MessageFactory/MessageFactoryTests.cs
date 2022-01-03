@@ -3,16 +3,17 @@ using ReliableUDP.Tests.Messages;
 using ReliableUDP.Tests.Mocks;
 using Xunit;
 
-namespace ReliableUDP.Tests.MessageFactory;
-
-public class MessageHubTests
+namespace ReliableUDP.Tests.MessageFactory
 {
-    [Fact]
-    public void TestRegisterMessageFactory()
+    public class MessageHubTests
     {
-        var hub = new ReliableUdpHub(new MockUdpClient(null));
-        
-        var factory = new MessageFactory<TestMessage>();
-        hub.RegisterMessageFactory<TestMessage>(0, factory);
+        [Fact]
+        public void TestRegisterMessageFactory()
+        {
+            var hub = new ReliableUdpHub(new MockUdpClient(null));
+            
+            var factory = new MessageFactory<Messages.TestMessage>();
+            hub.RegisterMessageFactory<Messages.TestMessage>(0, factory);
+        }
     }
 }

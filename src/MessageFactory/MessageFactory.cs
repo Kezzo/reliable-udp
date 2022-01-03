@@ -1,19 +1,21 @@
+using System.IO;
 using ReliableUDP.Messages;
 
-namespace ReliableUDP.MessageFactory;
-
-public interface IMessageFactory
+namespace ReliableUDP.MessageFactory
 {
-    BaseMessage CreateMessage(BinaryReader reader);
-}
-
-public class MessageFactory<T> : IMessageFactory where T : BaseMessage, new()
-{
-    public BaseMessage CreateMessage(BinaryReader reader)
+    public interface IMessageFactory
     {
-        var message = new T();
-        message.Deserialize(reader);
+        BaseMessage CreateMessage(BinaryReader reader);
+    }
 
-        return message;
+    public class MessageFactory<T> : IMessageFactory where T : BaseMessage, new()
+    {
+        public BaseMessage CreateMessage(BinaryReader reader)
+        {
+            var message = new T();
+            message.Deserialize(reader);
+
+            return message;
+        }
     }
 }

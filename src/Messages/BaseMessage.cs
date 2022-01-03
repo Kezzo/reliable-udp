@@ -1,18 +1,22 @@
-namespace ReliableUDP.Messages;
+using System;
+using System.IO;
 
-public abstract class BaseMessage
+namespace ReliableUDP.Messages
 {
-    public UInt16 MessageId;
-    public bool IsAcked;
-    public Nullable<long> LastSentTimestamp;
-
-    public virtual void Serialize(BinaryWriter writer) 
+    public abstract class BaseMessage
     {
-        writer.Write(MessageId);
-    }
+        public ushort MessageId;
+        public bool IsAcked;
+        public Nullable<long> LastSentTimestamp;
 
-    public virtual void Deserialize(BinaryReader reader)
-    {
-        MessageId = reader.ReadUInt16();
+        public virtual void Serialize(BinaryWriter writer) 
+        {
+            writer.Write(MessageId);
+        }
+
+        public virtual void Deserialize(BinaryReader reader)
+        {
+            MessageId = reader.ReadUInt16();
+        }
     }
 }

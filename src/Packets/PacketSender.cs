@@ -1,23 +1,26 @@
-namespace ReliableUDP.Packets;
+using System.Threading.Tasks;
 
-public class PacketSender
+namespace ReliableUDP.Packets
 {
-    private readonly IUdpClient udpClient;
-    private UInt16 nextSequence;
-
-    public PacketSender(IUdpClient udpClient)
+    public class PacketSender
     {
-        this.udpClient = udpClient;
-    }
+        private readonly IUdpClient udpClient;
+        private ushort nextSequence;
 
-    public async Task<UInt16> SendPacket(PacketHeader header, byte[] payload)
-    {
-        header.Sequence = nextSequence;
-        nextSequence++;
+        public PacketSender(IUdpClient udpClient)
+        {
+            this.udpClient = udpClient;
+        }
 
-        var bytesToSend = header.AddBytes(payload);
-        await udpClient.SendAsync(bytesToSend, bytesToSend.Length);
+        public async Task<ushort> SendPacket(PacketHeader header, byte[] payload)
+        {
+            header.Sequence = nextSequence;
+            nextSequence++;
 
-        return header.Sequence;
+            var bytesToSend = header.AddBytes(payload);
+            await udpClient.SendAsync(bytesToSend, bytesToSend.Length);
+
+            return header.Sequence;
+        }
     }
 }

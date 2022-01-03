@@ -3,51 +3,52 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace ReliableUDP.Tests.Mocks;
-
-public class MockUdpClient : IUdpClient
+namespace ReliableUDP.Tests.Mocks
 {
-    public int Available { get { return resultsToReturn.Count > 0 ? resultsToReturn.Peek().Length : 0; } } 
-
-    private readonly Queue<byte[]> resultsToReturn = new Queue<byte[]>();
-
-    public List<byte[]> SentDatagrams = new List<byte[]>();
-
-    public MockUdpClient(List<byte[]>? resultsToReturn)
+    public class MockUdpClient : IUdpClient
     {
-        if(resultsToReturn == null)
+        public int Available { get { return resultsToReturn.Count > 0 ? resultsToReturn.Peek().Length : 0; } } 
+
+        private readonly Queue<byte[]> resultsToReturn = new Queue<byte[]>();
+
+        public List<byte[]> SentDatagrams = new List<byte[]>();
+
+        public MockUdpClient(List<byte[]> resultsToReturn)
         {
-            return;
+            if(resultsToReturn == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < resultsToReturn.Count; i++)
+            {
+                this.resultsToReturn.Enqueue(resultsToReturn[i]);
+            }
         }
 
-        for (int i = 0; i < resultsToReturn.Count; i++)
+        public void AddResultToReturn(byte[] result)
         {
-            this.resultsToReturn.Enqueue(resultsToReturn[i]);
-        }
-    }
-
-    public void AddResultToReturn(byte[] result)
-    {
-        resultsToReturn.Enqueue(result);
-    }
-
-    public Task<UdpReceiveResult> ReceiveAsync()
-    {
-        if(resultsToReturn.Count == 0)
-        {
-            // throw here to surface code using the udp client without checking first if data is available
-            throw new InvalidOperationException();
+            resultsToReturn.Enqueue(result);
         }
 
-        return Task.FromResult(new UdpReceiveResult(resultsToReturn.Dequeue(), new System.Net.IPEndPoint(0, 0)));
-    }
+        public Task<UdpReceiveResult> ReceiveAsync()
+        {
+            if(resultsToReturn.Count == 0)
+            {
+                // throw here to surface code using the udp client without checking first if data is available
+                throw new InvalidOperationException();
+            }
 
-    public Task<int> SendAsync(byte[] datagram, int bytes)
-    {
-        var datagramCopy = new byte[datagram.Length];
-        Array.Copy(datagram, datagramCopy, datagram.Length);
+            return Task.FromResult(new UdpReceiveResult(resultsToReturn.Dequeue(), new System.Net.IPEndPoint(0, 0)));
+        }
 
-        SentDatagrams.Add(datagramCopy);
-        return Task.FromResult(bytes);
+        public Task<int> SendAsync(byte[] datagram, int bytes)
+        {
+            var datagramCopy = new byte[datagram.Length];
+            Array.Copy(datagram, datagramCopy, datagram.Length);
+
+            SentDatagrams.Add(datagramCopy);
+            return Task.FromResult(bytes);
+        }
     }
 }

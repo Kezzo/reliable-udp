@@ -1,50 +1,53 @@
+using System;
+using System.Threading.Tasks;
 using ReliableUDP.SequenceBuffer;
 
-namespace ReliableUDP.Packets;
-
-public class PacketReceiver
+namespace ReliableUDP.Packets
 {
-    private readonly IUdpClient udpClient;
-    private readonly SequenceBuffer<Tuple<bool>> receivedSequences;
-
-    public PacketReceiver(IUdpClient udpClient)
+    public class PacketReceiver
     {
-        this.udpClient = udpClient;
-        this.receivedSequences = new SequenceBuffer<Tuple<bool>>();
-    }
+        private readonly IUdpClient udpClient;
+        private readonly SequenceBuffer<Tuple<bool>> receivedSequences;
 
-    public async Task<Packet?> ReceiveNextPacket()
-    {
-        if(udpClient.Available <= 0) 
+        public PacketReceiver(IUdpClient udpClient)
         {
-            return null;
+            this.udpClient = udpClient;
+            this.receivedSequences = new SequenceBuffer<Tuple<bool>>();
         }
 
-        var result = await udpClient.ReceiveAsync();
-        Packet packet = new Packet(result.Buffer);
-
-        receivedSequences.AddEntry(packet.Header.Sequence, new Tuple<bool>(true));
-        return packet;
-    }
-
-    public PacketHeader CreateNextHeader()
-    {
-        var header = new PacketHeader{
-            LastAck = receivedSequences.MostRecentSequence,
-            AckBits = 0
-        };
-
-        UInt32 one = 1;
-        for (UInt16 i = 0; i < 32; i++)
+        public async Task<Packet> ReceiveNextPacket()
         {
-            var nextEntry = receivedSequences.GetEntry((UInt16) (receivedSequences.MostRecentSequence - (i + 1)));
-            
-            if(nextEntry != null && nextEntry.Item1 == true)
+            if(udpClient.Available <= 0) 
             {
-                header.AckBits = header.AckBits | (one << i);
+                return null;
             }
+
+            var result = await udpClient.ReceiveAsync();
+            Packet packet = new Packet(result.Buffer);
+
+            receivedSequences.AddEntry(packet.Header.Sequence, new Tuple<bool>(true));
+            return packet;
         }
 
-        return header;
+        public PacketHeader CreateNextHeader()
+        {
+            var header = new PacketHeader{
+                LastAck = receivedSequences.MostRecentSequence,
+                AckBits = 0
+            };
+
+            UInt32 one = 1;
+            for (ushort i = 0; i < 32; i++)
+            {
+                var nextEntry = receivedSequences.GetEntry((ushort) (receivedSequences.MostRecentSequence - (i + 1)));
+                
+                if(nextEntry != null && nextEntry.Item1 == true)
+                {
+                    header.AckBits = header.AckBits | (one << i);
+                }
+            }
+
+            return header;
+        }
     }
 }
