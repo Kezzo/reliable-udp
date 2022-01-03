@@ -43,7 +43,9 @@ public class MessageSender
             return;
         }
 
+        message.MessageId = nextMessageIdToSend;
         messagesToSend.AddEntry(nextMessageIdToSend, message);
+
         nextMessageIdToSend++;
     }
 
@@ -98,12 +100,12 @@ public class MessageSender
         var bufferedStream = new BufferedStream(ms);
         var writer = new BinaryWriter(bufferedStream);
 
-        var messageIdToCheck = oldestUnackedMessageId;
+        var nextMessageIdToCheck = oldestUnackedMessageId;
 
         while(true)
         {
-            var message = messagesToSend.GetEntry(messageIdToCheck);
-            messageIdToCheck++;
+            var message = messagesToSend.GetEntry(nextMessageIdToCheck);
+            nextMessageIdToCheck++;
 
             if(message == null)
             {
@@ -121,20 +123,20 @@ public class MessageSender
             message.Serialize(writer);
 
             // does buffer fit into payload?
-            if(bufferedStream.Position > ms.Length - ms.Position)
+            if(bufferedStream.Position > ms.Capacity - ms.Position)
             {
-                bufferedStream.Position = 0;
+                // Reset position back to last flushed position
+                bufferedStream.Position = ms.Position;
                 continue;
             }
 
             // writer bytes to payload and reset
             bufferedStream.Flush();
-            bufferedStream.Position = 0;
 
             // overwrite send buffer entry with new sent time
             message.LastSentTimestamp = timeNow;
-            messagesToSend.AddEntry(messageIdToCheck, message);
-            messageIds.Add(messageIdToCheck);
+            messagesToSend.AddEntry(message.MessageId, message);
+            messageIds.Add(message.MessageId);
         }
 
         byte[]? payload = null;
