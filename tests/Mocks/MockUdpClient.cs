@@ -44,7 +44,10 @@ public class MockUdpClient : IUdpClient
 
     public Task<int> SendAsync(byte[] datagram, int bytes)
     {
-        SentDatagrams.Add(datagram);
+        var datagramCopy = new byte[datagram.Length];
+        Array.Copy(datagram, datagramCopy, datagram.Length);
+
+        SentDatagrams.Add(datagramCopy);
         return Task.FromResult(bytes);
     }
 }
