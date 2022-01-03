@@ -15,7 +15,7 @@ The library does not exercise head of line blocking, but rather re-sends message
 
 The library strives for high quality by:
 - keeping the library code clean and simple
-- minimize external dependencies
+- minimizing external dependencies 
 - testing broadly with unit- and integration-tests
 - limiting feature-set to bare needed minimum
 - implementing a clear and easy to use API
