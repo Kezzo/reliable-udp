@@ -4,7 +4,7 @@ public abstract class BaseMessage
 {
     public UInt16 MessageId;
     public bool IsAcked;
-    public long LastSentTimestamp;
+    public Nullable<long> LastSentTimestamp;
 
     public virtual void Serialize(BinaryWriter writer) 
     {

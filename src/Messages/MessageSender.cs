@@ -113,7 +113,7 @@ public class MessageSender
             }
             
             // TODO: Use RTT here
-            if(message.IsAcked || (timestampNow - message.LastSentTimestamp) < 100)
+            if(message.IsAcked || (message.LastSentTimestamp != null && (timestampNow - message.LastSentTimestamp) < 100))
             {
                 // skip message
                 continue;
