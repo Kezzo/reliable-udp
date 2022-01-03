@@ -51,9 +51,20 @@ public class MessageSender
 
     public async Task SendQueuedMessages(long timestampNow, PacketHeader headerToUse)
     {
-        var packetSequence = await packetSender.SendPacket(
-            headerToUse, ConstructNextPayload(timestampNow, out List<UInt16> messageIds));
-        packetToMessageLookup.AddEntry(packetSequence, messageIds);
+        while(true)
+        {
+            // send packets until message queue has no message available for sending
+            var nextPayload = ConstructNextPayload(timestampNow, out List<UInt16> messageIds);
+
+            if(nextPayload == null || nextPayload.Length == 0)
+            {
+                return;
+            }
+
+            var packetSequence = await packetSender.SendPacket(
+                headerToUse, nextPayload);
+            packetToMessageLookup.AddEntry(packetSequence, messageIds);
+        }
     }
 
     private void MarkSendBufferMessagesAcked(UInt16 ackedPacketSequence)
