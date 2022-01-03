@@ -26,7 +26,8 @@ public class ReliableUdpHub
 
     public Task SendQueuedMessages()
     {
-        return sender.SendQueuedMessages(receiver.CreateNextHeader());
+        return sender.SendQueuedMessages(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), 
+            receiver.CreateNextHeader());
     }
 
     public async Task<List<BaseMessage>?> GetReceivedMessages()

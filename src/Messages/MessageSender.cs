@@ -49,10 +49,10 @@ public class MessageSender
         nextMessageIdToSend++;
     }
 
-    public async Task SendQueuedMessages(PacketHeader headerToUse)
+    public async Task SendQueuedMessages(long timestampNow, PacketHeader headerToUse)
     {
         var packetSequence = await packetSender.SendPacket(
-            headerToUse, ConstructNextPayload(out List<UInt16> messageIds));
+            headerToUse, ConstructNextPayload(timestampNow, out List<UInt16> messageIds));
         packetToMessageLookup.AddEntry(packetSequence, messageIds);
     }
 
@@ -90,10 +90,9 @@ public class MessageSender
         }
     }
 
-    private byte[] ConstructNextPayload(out List<UInt16> messageIds)
+    private byte[] ConstructNextPayload(long timestampNow, out List<UInt16> messageIds)
     {
         messageIds = new List<ushort>();
-        var timeNow = DateTimeOffset.UtcNow.Millisecond;
 
         //TODO: Re-use these
         var ms = new MemoryStream(MAX_PACKET_PAYLOAD_SIZE);
@@ -113,7 +112,8 @@ public class MessageSender
                 break;
             }
             
-            if(message.IsAcked || (timeNow - message.LastSentTimestamp) < 100)
+            // TODO: Use RTT here
+            if(message.IsAcked || (timestampNow - message.LastSentTimestamp) < 100)
             {
                 // skip message
                 continue;
@@ -134,7 +134,7 @@ public class MessageSender
             bufferedStream.Flush();
 
             // overwrite send buffer entry with new sent time
-            message.LastSentTimestamp = timeNow;
+            message.LastSentTimestamp = timestampNow;
             messagesToSend.AddEntry(message.MessageId, message);
             messageIds.Add(message.MessageId);
         }
