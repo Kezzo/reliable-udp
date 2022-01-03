@@ -9,7 +9,7 @@ public class PacketSenderTests
     [Fact]
     public async void TestSendPacket()
     {        
-        var mockUdpClient = new Mocks.MockUDPClient(null);
+        var mockUdpClient = new Mocks.MockUdpClient(null);
         var packetSender = new PacketSender(mockUdpClient);
 
         byte payload = 20;

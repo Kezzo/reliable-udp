@@ -10,7 +10,7 @@ public class PacketReceiverTests
     [Fact]
     public async void TestReceiveNextPacket()
     {
-        var mockUdpClient = new Mocks.MockUDPClient(null);
+        var mockUdpClient = new Mocks.MockUdpClient(null);
         var testReceiver = new PacketReceiver(mockUdpClient);
 
         Assert.Null(await testReceiver.ReceiveNextPacket());
@@ -36,7 +36,7 @@ public class PacketReceiverTests
     public async void TestCreateNextHeader()
     {
         var payload = new byte[] { 5, 6, 7, 8 };
-        var mockUdpClient = new Mocks.MockUDPClient(new List<byte[]>{
+        var mockUdpClient = new Mocks.MockUdpClient(new List<byte[]>{
             new PacketHeader{
                 Sequence = 20,
                 AckBits = 23,

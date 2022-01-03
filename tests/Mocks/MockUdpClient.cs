@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ReliableUDP.Tests.Mocks;
 
-public class MockUDPClient : IUdpClient
+public class MockUdpClient : IUdpClient
 {
     public int Available { get { return resultsToReturn.Count > 0 ? resultsToReturn.Peek().Length : 0; } } 
 
@@ -13,7 +13,7 @@ public class MockUDPClient : IUdpClient
 
     public List<byte[]> SentDatagrams = new List<byte[]>();
 
-    public MockUDPClient(List<byte[]>? resultsToReturn)
+    public MockUdpClient(List<byte[]>? resultsToReturn)
     {
         if(resultsToReturn == null)
         {
