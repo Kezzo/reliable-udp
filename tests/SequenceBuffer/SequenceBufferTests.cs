@@ -2,7 +2,7 @@ using System;
 using ReliableUDP.SequenceBuffer;
 using Xunit;
 
-namespace ReliableUDP.Tests;
+namespace ReliableUDP.Tests.SequenceBuffer;
 
 public class SequenceBufferTests
 {
