@@ -3,7 +3,8 @@
 # Reliable UDP
 
 .NET library that implements reliable (and optional ordered) UDP delivery. 
-The design is based on Gaffer on Games article: https://gafferongames.com/post/reliable_ordered_messages/
+The design is based on Gaffer on Games article: https://gafferongames.com/post/reliable_ordered_messages/.
+Since the library targets the [.NET Standard 1.0] (https://dotnet.microsoft.com/en-us/platform/dotnet-standard) any .NET project using any framework is supported including Unity 2018.1 and up.
 
 The library guarantees that messages are:
 - received in order
