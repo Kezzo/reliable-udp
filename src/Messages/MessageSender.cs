@@ -107,12 +107,12 @@ public class MessageSender
 
         //TODO: Re-use these
         var ms = new MemoryStream(MAX_PACKET_PAYLOAD_SIZE);
-        var bufferedStream = new BufferedStream(ms);
-        var writer = new BinaryWriter(bufferedStream);
+        var writer = new BinaryWriter(ms);
 
         var nextMessageIdToCheck = oldestUnackedMessageId;
+        bool isPacketFull = false;
 
-        while(true)
+        while(!isPacketFull)
         {
             var message = messagesToSend.GetEntry(nextMessageIdToCheck);
             nextMessageIdToCheck++;
@@ -130,19 +130,26 @@ public class MessageSender
                 continue;
             }
 
+            var preWritePosition = ms.Position;
+            var preWriteLength = ms.Length;
+
             // TODO: Only add message if it fits into buffer
             message.Serialize(writer);
 
+            // allow sending huge payloads in separate packets
+            if(messageIds.Count == 0 && ms.Position > MAX_PACKET_PAYLOAD_SIZE)
+            {
+                // stop packing messages after this message
+                isPacketFull = true;
+            }
             // does buffer fit into payload?
-            if(bufferedStream.Position > ms.Capacity - ms.Position)
+            else if(ms.Position > MAX_PACKET_PAYLOAD_SIZE)
             {
                 // Reset position back to last flushed position
-                bufferedStream.Position = ms.Position;
+                ms.Position = preWritePosition;
+                ms.SetLength(preWriteLength);
                 continue;
             }
-
-            // writer bytes to payload and reset
-            bufferedStream.Flush();
 
             // overwrite send buffer entry with new sent time
             message.LastSentTimestamp = timestampNow;
@@ -159,7 +166,6 @@ public class MessageSender
         }
 
         ms.Dispose();
-        bufferedStream.Dispose();
         writer.Dispose();
 
         return payload;
