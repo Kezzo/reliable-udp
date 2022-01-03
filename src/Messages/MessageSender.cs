@@ -31,7 +31,6 @@ public class MessageSender
 
         for (int i = 0; i < acks.Count; i++)
         {
-            packetSender.OnPacketAcked(acks[i]);
             MarkSendBufferMessagesAcked(acks[i]);
             UpdateOldestAckedMessageId();
         }

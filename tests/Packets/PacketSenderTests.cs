@@ -1,4 +1,4 @@
-using System.Linq;
+using System;
 using ReliableUDP.Packets;
 using Xunit;
 
@@ -7,29 +7,21 @@ namespace ReliableUDP.Tests.Packets;
 public class PacketSenderTests
 {
     [Fact]
-    public void TestIsPacketAcked()
-    {        
-        var mockUdpClient = new Mocks.MockUDPClient(null);
-        var packetSender = new PacketSender(mockUdpClient);
-
-        packetSender.SendPacket(new PacketHeader{}, new byte[] { 20 });
-
-        Assert.False(packetSender.IsPacketAcked(0));
-
-        packetSender.OnPacketAcked(0);
-        Assert.True(packetSender.IsPacketAcked(0));
-    }
-
-    [Fact]
-    public void TestReceiveNextPacket()
+    public async void TestSendPacket()
     {        
         var mockUdpClient = new Mocks.MockUDPClient(null);
         var packetSender = new PacketSender(mockUdpClient);
 
         byte payload = 20;
-        packetSender.SendPacket(new PacketHeader{}, new byte[] { payload });
+        UInt16 packetSequence = await packetSender.SendPacket(new PacketHeader{}, new byte[] { payload });
 
         Assert.NotEmpty(mockUdpClient.SentDatagrams);
         Assert.Contains(payload, mockUdpClient.SentDatagrams[0]);
+
+        for (int i = 1; i < UInt16.MaxValue + 2; i++)
+        {
+            packetSequence = await packetSender.SendPacket(new PacketHeader{}, new byte[] { payload });
+            Assert.Equal(i % (UInt16.MaxValue + 1), packetSequence);
+        }
     }
 }
