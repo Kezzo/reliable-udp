@@ -26,8 +26,12 @@ public class PacketReceiverTests
 
         var packetToTest = await testReceiver.ReceiveNextPacket();
         Assert.NotNull(packetToTest);
-        Assert.True(testHeader.Equals(packetToTest.Header));
-        Assert.Equal(payload, packetToTest.Payload);
+
+        if(packetToTest != null)
+        {
+            Assert.True(testHeader.Equals(packetToTest.Header));
+            Assert.Equal(payload, packetToTest.Payload);
+        }
 
         Assert.Null(await testReceiver.ReceiveNextPacket());
     }
