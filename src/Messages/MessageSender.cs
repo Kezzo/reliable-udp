@@ -148,6 +148,7 @@ public class MessageSender
         }
 
         ms.Dispose();
+        bufferedStream.Dispose();
         writer.Dispose();
 
         return payload;
