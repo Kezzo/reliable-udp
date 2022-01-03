@@ -1,26 +1,12 @@
-using System.IO;
 using ReliableUDP.MessageFactory;
-using ReliableUDP.Messages;
+using ReliableUDP.Tests.Messages;
 using ReliableUDP.Tests.Mocks;
 using Xunit;
 
-namespace ReliableUDP.Tests;
+namespace ReliableUDP.Tests.MessageFactory;
 
 public class MessageHubTests
 {
-    public class TestMessage : BaseMessage
-    {
-        public override void Deserialize(BinaryReader reader)
-        {
-            base.Deserialize(reader);
-        }
-
-        public override void Serialize(BinaryWriter writer)
-        {
-            base.Serialize(writer);
-        }
-    }
-
     [Fact]
     public void TestRegisterMessageFactory()
     {
