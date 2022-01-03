@@ -69,9 +69,10 @@ namespace ReliableUDP.Messages
             {
                 ExtractMessagesFromPayload(packet.Payload);
             }
-            catch(Exception e)
+            catch
             {
-                Console.WriteLine(e);
+                
+                //Console.WriteLine(e);
                 // DO NOT ack packet if there was an exception when deserializing it.
                 // TODO: track deserialization error and reject client after continuous errors.
                 return null;
@@ -89,7 +90,7 @@ namespace ReliableUDP.Messages
         {
             if(payload.Array == null)
             {
-                Console.WriteLine("WARN: ExtractMessagesFromPayload: payload is null");
+                //Console.WriteLine("WARN: ExtractMessagesFromPayload: payload is null");
                 return;
             }
 

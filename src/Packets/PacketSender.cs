@@ -18,7 +18,7 @@ namespace ReliableUDP.Packets
             nextSequence++;
 
             var bytesToSend = header.AddBytes(payload);
-            await udpClient.SendAsync(bytesToSend, bytesToSend.Length);
+            await udpClient.SendAsync(bytesToSend);
 
             return header.Sequence;
         }

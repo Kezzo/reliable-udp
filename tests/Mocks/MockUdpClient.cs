@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace ReliableUDP.Tests.Mocks
@@ -31,7 +30,7 @@ namespace ReliableUDP.Tests.Mocks
             resultsToReturn.Enqueue(result);
         }
 
-        public Task<UdpReceiveResult> ReceiveAsync()
+        public Task<byte[]> ReceiveAsync()
         {
             if(resultsToReturn.Count == 0)
             {
@@ -39,16 +38,16 @@ namespace ReliableUDP.Tests.Mocks
                 throw new InvalidOperationException();
             }
 
-            return Task.FromResult(new UdpReceiveResult(resultsToReturn.Dequeue(), new System.Net.IPEndPoint(0, 0)));
+            return Task.FromResult(resultsToReturn.Dequeue());
         }
 
-        public Task<int> SendAsync(byte[] datagram, int bytes)
+        public Task<int> SendAsync(byte[] datagram)
         {
             var datagramCopy = new byte[datagram.Length];
             Array.Copy(datagram, datagramCopy, datagram.Length);
 
             SentDatagrams.Add(datagramCopy);
-            return Task.FromResult(bytes);
+            return Task.FromResult(datagram.Length);
         }
     }
 }

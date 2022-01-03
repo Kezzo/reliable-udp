@@ -22,8 +22,8 @@ namespace ReliableUDP.Packets
                 return null;
             }
 
-            var result = await udpClient.ReceiveAsync();
-            Packet packet = new Packet(result.Buffer);
+            var buffer = await udpClient.ReceiveAsync();
+            Packet packet = new Packet(buffer);
 
             receivedSequences.AddEntry(packet.Header.Sequence, new Tuple<bool>(true));
             return packet;

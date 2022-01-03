@@ -20,7 +20,7 @@ namespace ReliableUDP.Tests.Packets
                     writer.Write(testHeader.AckBits);
                 }
 
-                testBytes = ms.GetBuffer();
+                testBytes = ms.ToArray();
             }
 
             return testBytes;
