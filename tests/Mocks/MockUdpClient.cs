@@ -12,6 +12,8 @@ namespace ReliableUdp.Tests.Mocks
 
         public List<byte[]> SentDatagrams = new List<byte[]>();
 
+        private MockUdpClient connectedClient;
+
         public MockUdpClient(List<byte[]> resultsToReturn)
         {
             if(resultsToReturn == null)
@@ -23,6 +25,11 @@ namespace ReliableUdp.Tests.Mocks
             {
                 this.resultsToReturn.Enqueue(resultsToReturn[i]);
             }
+        }
+
+        public void ConnectToClient(MockUdpClient udpClient)
+        {
+            connectedClient = udpClient;
         }
 
         public void AddResultToReturn(byte[] result)
@@ -47,6 +54,12 @@ namespace ReliableUdp.Tests.Mocks
             Array.Copy(datagram, datagramCopy, datagram.Length);
 
             SentDatagrams.Add(datagramCopy);
+
+            if(connectedClient != null)
+            {
+                connectedClient.AddResultToReturn(datagram);
+            }
+
             return Task.FromResult(datagram.Length);
         }
     }
