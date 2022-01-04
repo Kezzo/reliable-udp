@@ -26,7 +26,7 @@ The library strives for high quality by:
 - providing good documentation and examples
 
 Roadmap:
-- [ ] Reliable ordered delivery
+- [x] Reliable ordered delivery
 - [ ] Support for unreliable messages
 - [ ] Support for unordered message receival
 - [ ] Retransmission based on RTT
