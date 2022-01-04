@@ -1,6 +1,6 @@
 [![Tests](https://github.com/Kezzo/reliable-udp/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Kezzo/reliable-udp/actions/workflows/tests.yml)
 
-# Reliable UDP
+# ReliableUdp
 
 .NET library that implements reliable (and optionally ordered) UDP delivery. 
 The design is inspired by Gaffer on Games article: https://gafferongames.com/post/reliable_ordered_messages/.

@@ -6,6 +6,9 @@
     <Version>1.0.0-alpha</Version>
     <Authors>Kezzo</Authors>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <Title>ReliableUdp</Title>
+    <Description>.NET library that implements reliable (and optionally ordered) UDP delivery.</Description>
+    <ProjectUrl>https://github.com/Kezzo/reliable-udp</ProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
