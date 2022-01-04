@@ -10,6 +10,7 @@
     <Description>.NET library that implements reliable (and optionally ordered) UDP delivery.</Description>
     <ProjectUrl>https://github.com/Kezzo/reliable-udp</ProjectUrl>
     <Readme>README.md</Readme>
+    <Tags>reliable;ordered;udp;game;networking;</Tags>
   </PropertyGroup>
 
   <ItemGroup>
