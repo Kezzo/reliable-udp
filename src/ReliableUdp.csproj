@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
     <PackageId>ReliableUdp</PackageId>
-    <Version>1.0.0-alpha</Version>
+    <Version>1.0.1-alpha</Version>
     <Authors>Kezzo</Authors>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <Title>ReliableUdp</Title>
