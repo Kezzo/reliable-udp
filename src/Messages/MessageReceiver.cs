@@ -64,19 +64,10 @@ namespace ReliableUDP.Messages
                 return null;
             }
 
-            try 
-            {
-                ExtractMessagesFromPayload(packet.Payload);
-            }
-            catch
-            {
-                
-                //Console.WriteLine(e);
-                // DO NOT ack packet if there was an exception when deserializing it.
-                // TODO: track deserialization error and reject client after continuous errors.
-                return null;
-            }
+            ExtractMessagesFromPayload(packet.Payload);
 
+            // DO NOT ack packet if there was an exception when deserializing it.
+            // TODO: track deserialization error and reject client after continuous errors.
             return packet.Header.GetAcks();
         }
 
@@ -102,7 +93,7 @@ namespace ReliableUDP.Messages
                         ushort messageTypeId = reader.ReadUInt16();
                         if(!messageFactories.TryGetValue(messageTypeId, out IMessageFactory factory) || factory == null)
                         {
-                            throw new Exception($"Couldn't find factory for message type id: {messageTypeId}");
+                            throw new KeyNotFoundException($"Couldn't find factory for message type id: {messageTypeId}");
                         }
 
                         var message = factory.CreateMessage(reader);
