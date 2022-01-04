@@ -11,6 +11,8 @@ The library guarantees that messages are:
 - received without duplicates
 - received in order (optional)
 
+> :exclamation: When using this library it is vital that the client and server both use this library to send and received messages.
+
 The library does **not** exercise head of line blocking in the traditional sense, but rather re-sends messages until a confirmation (ack) of their receival has been received. Messages are sent again after the previous sent time + RTT has passed. This could in theory lead to duplicate messages, but the library sorts those cases out. More recent messages are still continously sent and when received they're buffered and made available once the previous lost message has arrived.
 > :warning: When the library is used to received messages *in order* a delay occurs for all messages that arrive after a lost message should've arrived until the lost message was sent again and received successfully. The delay is usually equal to the length of the RTT. If this behavior is not acceptable, the library can provide messages immediately when they have been received (while keeping them reliable) which can lead to them not being in the same order as they have been sent in.
 
@@ -27,9 +29,9 @@ The library strives for high quality by:
 
 Roadmap:
 - [x] Reliable ordered delivery
+- [ ] Add examples
 - [ ] Support for unreliable messages
 - [ ] Support for unordered message receival
 - [ ] Retransmission based on RTT
-- [ ] Add examples
 - [ ] Optimize memory allocation
 - [ ] DTLS support
