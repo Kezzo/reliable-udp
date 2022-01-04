@@ -36,8 +36,18 @@ namespace ReliableUDP
 
         public async Task<List<BaseMessage>> GetReceivedMessages()
         {
-            var acks = await receiver.ReceiveAllPackets();
-            sender.AckMessages(acks);
+            while(true)
+            {
+                // get packets and ack them until all have been handled
+                var acks = await receiver.ReceiveNextPacket();
+                if(acks == null)
+                {
+                    break;
+                }
+
+                sender.AckMessages(acks);
+            }
+            
             return receiver.GetReceivedMessages();
         }
     }

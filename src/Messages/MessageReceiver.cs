@@ -53,11 +53,10 @@ namespace ReliableUDP.Messages
                 messagesToReturn.Add(nextMessage);
             }
             
-
             return messagesToReturn;
         }
 
-        public async Task<List<ushort>> ReceiveAllPackets()
+        public async Task<List<ushort>> ReceiveNextPacket()
         {
             var packet = await packetReceiver.ReceiveNextPacket();
             if(packet == null)
