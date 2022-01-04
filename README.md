@@ -19,7 +19,7 @@ In addition the library provides an interface to **serialize/deserialize** messa
 
 The library strives for high quality by:
 - keeping the library code clean and simple
-- no external dependencies (see [.csproj file](src/ReliableUdp.csproj))
+- no external third-party dependencies (see [.csproj file](src/ReliableUdp.csproj))
 - testing broadly with unit- and integration-tests
 - limiting feature-set to bare needed minimum
 - implementing a clear and easy to use API
