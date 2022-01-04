@@ -9,10 +9,12 @@
     <Title>ReliableUdp</Title>
     <Description>.NET library that implements reliable (and optionally ordered) UDP delivery.</Description>
     <ProjectUrl>https://github.com/Kezzo/reliable-udp</ProjectUrl>
+    <Readme>README.md</Readme>
   </PropertyGroup>
 
   <ItemGroup>
         <None Include="../LICENSE.md" Pack="true" PackagePath="LICENSE.md"/>
+        <None Include="../README.md" Pack="true" PackagePath="README.md"/>
     </ItemGroup>
 
 </Project>
