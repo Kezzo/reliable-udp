@@ -1,9 +1,9 @@
-using ReliableUDP.MessageFactory;
-using ReliableUDP.Tests.Messages;
-using ReliableUDP.Tests.Mocks;
+using ReliableUdp.MessageFactory;
+using ReliableUdp.Tests.Messages;
+using ReliableUdp.Tests.Mocks;
 using Xunit;
 
-namespace ReliableUDP.Tests.MessageFactory
+namespace ReliableUdp.Tests.MessageFactory
 {
     public class MessageHubTests
     {

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace ReliableUDP.Packets
+namespace ReliableUdp.Packets
 {
     public class PacketSender
     {

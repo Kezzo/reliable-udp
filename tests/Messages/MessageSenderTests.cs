@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using ReliableUDP.Messages;
-using ReliableUDP.Packets;
-using ReliableUDP.Tests.Mocks;
+using ReliableUdp.Messages;
+using ReliableUdp.Packets;
+using ReliableUdp.Tests.Mocks;
 using Xunit;
 
-namespace ReliableUDP.Tests.Messages
+namespace ReliableUdp.Tests.Messages
 {
     public class MessageSenderTests
     {

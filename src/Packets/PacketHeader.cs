@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ReliableUDP.Packets
+namespace ReliableUdp.Packets
 {
     public class PacketHeader : IEquatable<PacketHeader>
     {

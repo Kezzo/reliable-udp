@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ReliableUDP.Packets;
+using ReliableUdp.Packets;
 using Xunit;
 
-namespace ReliableUDP.Tests.Packets
+namespace ReliableUdp.Tests.Packets
 {
     public class PacketReceiverTests
     {

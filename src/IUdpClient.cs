@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace ReliableUDP
+namespace ReliableUdp
 {
     public interface IUdpClient
     {

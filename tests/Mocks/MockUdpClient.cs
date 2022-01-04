@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ReliableUDP.Tests.Mocks
+namespace ReliableUdp.Tests.Mocks
 {
     public class MockUdpClient : IUdpClient
     {

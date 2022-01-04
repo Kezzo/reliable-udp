@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ReliableUDP.MessageFactory;
-using ReliableUDP.Messages;
+using ReliableUdp.MessageFactory;
+using ReliableUdp.Messages;
 
-namespace ReliableUDP
+namespace ReliableUdp
 {
     public class ReliableUdpHub
     {

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ReliableUDP.MessageFactory;
-using ReliableUDP.Packets;
-using ReliableUDP.SequenceBuffer;
+using ReliableUdp.MessageFactory;
+using ReliableUdp.Packets;
+using ReliableUdp.SequenceBuffer;
 
-namespace ReliableUDP.Messages
+namespace ReliableUdp.Messages
 {
     public class MessageReceiver
     {

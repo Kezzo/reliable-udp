@@ -1,6 +1,6 @@
 using System;
 
-namespace ReliableUDP.Packets
+namespace ReliableUdp.Packets
 {
     public class Packet
     {

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace ReliableUDP.Messages
+namespace ReliableUdp.Messages
 {
     public abstract class BaseMessage
     {

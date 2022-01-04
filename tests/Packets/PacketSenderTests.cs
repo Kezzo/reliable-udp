@@ -1,7 +1,7 @@
-using ReliableUDP.Packets;
+using ReliableUdp.Packets;
 using Xunit;
 
-namespace ReliableUDP.Tests.Packets
+namespace ReliableUdp.Tests.Packets
 {
     public class PacketSenderTests
     {

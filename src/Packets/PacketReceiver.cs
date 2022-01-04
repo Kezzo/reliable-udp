@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using ReliableUDP.SequenceBuffer;
+using ReliableUdp.SequenceBuffer;
 
-namespace ReliableUDP.Packets
+namespace ReliableUdp.Packets
 {
     public class PacketReceiver
     {

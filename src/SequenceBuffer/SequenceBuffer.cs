@@ -1,6 +1,6 @@
 using System;
 
-namespace ReliableUDP.SequenceBuffer
+namespace ReliableUdp.SequenceBuffer
 {
     public class SequenceBuffer<T> where T : class
     {

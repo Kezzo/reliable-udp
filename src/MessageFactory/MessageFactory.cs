@@ -1,7 +1,7 @@
 using System.IO;
-using ReliableUDP.Messages;
+using ReliableUdp.Messages;
 
-namespace ReliableUDP.MessageFactory
+namespace ReliableUdp.MessageFactory
 {
     public interface IMessageFactory
     {

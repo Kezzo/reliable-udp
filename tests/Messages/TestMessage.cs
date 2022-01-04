@@ -1,7 +1,7 @@
 using System.IO;
-using ReliableUDP.Messages;
+using ReliableUdp.Messages;
 
-namespace ReliableUDP.Tests.Messages
+namespace ReliableUdp.Tests.Messages
 {
     public class TestMessage : BaseMessage
     {
