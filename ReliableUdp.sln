@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableUDP", "src\ReliableUDP.csproj", "{B4D84467-9E94-4348-BC85-8D86C3E40F16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableUdp", "src\ReliableUdp.csproj", "{B4D84467-9E94-4348-BC85-8D86C3E40F16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableUDP.Tests", "tests\ReliableUDP.Tests.csproj", "{48E5685C-65E7-4C1D-A181-DC1521B04821}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableUdp.Tests", "tests\ReliableUdp.Tests.csproj", "{48E5685C-65E7-4C1D-A181-DC1521B04821}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

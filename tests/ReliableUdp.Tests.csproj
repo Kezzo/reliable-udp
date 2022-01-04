@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\ReliableUDP.csproj" />
+    <ProjectReference Include="..\src\ReliableUdp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
