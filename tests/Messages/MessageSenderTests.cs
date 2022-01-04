@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using ReliableUDP.Messages;
@@ -10,10 +11,37 @@ namespace ReliableUDP.Tests.Messages
     public class MessageSenderTests
     {
         [Fact]
+        public void TestMessageQueueingFieldSetup()
+        {
+            var udpClient = new MockUdpClient(null);
+            var messageSender = new MessageSender(udpClient);
+            
+            var msg1 = new TestMessage{ 
+                ID = 0, 
+                IsAcked = true, 
+                LastSentTimestamp = 45903485, 
+                MessageTypeId = 50646, 
+                MessageUid = 49345 
+            };
+
+            Assert.Throws<InvalidOperationException>(() => messageSender.QueueMessage(msg1));
+
+            messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
+            messageSender.QueueMessage(msg1);
+
+            // check if falsely set fields have been reset correctly
+            Assert.False(msg1.IsAcked);
+            Assert.Null(msg1.LastSentTimestamp);
+            Assert.Equal(10, msg1.MessageTypeId);
+            Assert.Equal(0, msg1.MessageUid);
+        }
+        
+        [Fact]
         public async void TestQueueingAndSendingMessages()
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
+            messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
 
             var msg1 = new TestMessage{ ID = 0 };
             var msg2 = new TestMessage{ ID = 1 };
@@ -31,24 +59,7 @@ namespace ReliableUDP.Tests.Messages
             // all message packed into one packet
             Assert.Single(udpClient.SentDatagrams);
 
-            var packet = new Packet(udpClient.SentDatagrams[0]);
-            var ms = new MemoryStream(packet.Payload.Array, packet.Payload.Offset, packet.Payload.Count);
-            var reader = new BinaryReader(ms);
-            
-            var sentMsg1 = new TestMessage();
-            sentMsg1.Deserialize(reader);
-            Assert.Equal(msg1.ID, sentMsg1.ID);
-
-            var sentMsg2 = new TestMessage();
-            sentMsg2.Deserialize(reader);
-            Assert.Equal(msg2.ID, sentMsg2.ID);
-
-            var sentMsg3 = new TestMessage();
-            sentMsg3.Deserialize(reader);
-            Assert.Equal(msg3.ID, sentMsg3.ID);
-
-            ms.Dispose();
-            reader.Dispose();
+            TestMessagesIncludedInPacket(udpClient.SentDatagrams[0], msg1, msg2, msg3);
         }
 
         [Fact]
@@ -56,15 +67,16 @@ namespace ReliableUDP.Tests.Messages
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
+            messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
 
-            var msg1 = new TestMessage{ ID = 0, Payload = new byte[239] };
+            var msg1 = new TestMessage{ ID = 0, Payload = new byte[237] };
 
             // too big message to fit into regular max payload size, will be sent separately
             var msg2 = new TestMessage{ ID = 1, Payload = new byte[1000] };
 
             // too big to fit into same packet as msg1, will be sent in next packet
             var msg3 = new TestMessage{ ID = 2, Payload = new byte[300] };
-            var msg4 = new TestMessage{ ID = 3, Payload = new byte[249] };
+            var msg4 = new TestMessage{ ID = 3, Payload = new byte[247] };
 
             messageSender.QueueMessage(msg1);
             messageSender.QueueMessage(msg2);
@@ -89,6 +101,7 @@ namespace ReliableUDP.Tests.Messages
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
+            messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
 
             var msg1 = new TestMessage{ ID = 0 };
             var msg2 = new TestMessage{ ID = 1 };
@@ -146,6 +159,9 @@ namespace ReliableUDP.Tests.Messages
             
             foreach (var msg in msgs)
             {
+                // read away message type id first
+                reader.ReadUInt16();
+                
                 var sentMsg = new TestMessage();
                 sentMsg.Deserialize(reader);
                 Assert.Equal(msg.ID, sentMsg.ID);

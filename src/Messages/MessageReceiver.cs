@@ -12,7 +12,7 @@ namespace ReliableUDP.Messages
     {
         private readonly PacketReceiver packetReceiver;
         private readonly SequenceBuffer<BaseMessage> receivedMessages;
-        private readonly Dictionary<byte, IMessageFactory> messageFactories;
+        private readonly Dictionary<ushort, IMessageFactory> messageFactories;
 
         // TODO: allow being receiving with any message id?
         private ushort nextMessageIdToReceive = 0;
@@ -21,10 +21,10 @@ namespace ReliableUDP.Messages
         {
             packetReceiver = new PacketReceiver(udpClient);
             receivedMessages = new SequenceBuffer<BaseMessage>();
-            messageFactories = new Dictionary<byte, IMessageFactory>();
+            messageFactories = new Dictionary<ushort, IMessageFactory>();
         }
 
-        public void RegisterMessageFactory<T>(byte messageTypeId, IMessageFactory factory)
+        public void RegisterMessageFactory<T>(ushort messageTypeId, IMessageFactory factory)
         {
             if(messageFactories.ContainsKey(messageTypeId))
             {
@@ -100,14 +100,14 @@ namespace ReliableUDP.Messages
                 {
                     using (BinaryReader reader = new BinaryReader(ms, System.Text.UTF8Encoding.UTF8, true))
                     {
-                        var messageTypeId = reader.ReadByte();
+                        ushort messageTypeId = reader.ReadUInt16();
                         if(!messageFactories.TryGetValue(messageTypeId, out IMessageFactory factory) || factory == null)
                         {
                             throw new Exception($"Couldn't find factory for message type id: {messageTypeId}");
                         }
 
                         var message = factory.CreateMessage(reader);
-                        receivedMessages.AddEntry(message.MessageId, message);
+                        receivedMessages.AddEntry(message.MessageUid, message);
                     }
                 }
             }

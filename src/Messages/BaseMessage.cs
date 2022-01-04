@@ -5,18 +5,20 @@ namespace ReliableUDP.Messages
 {
     public abstract class BaseMessage
     {
-        public ushort MessageId;
+        public ushort MessageTypeId;
+        public ushort MessageUid;
         public bool IsAcked;
         public Nullable<long> LastSentTimestamp;
 
         public virtual void Serialize(BinaryWriter writer) 
         {
-            writer.Write(MessageId);
+            writer.Write(MessageTypeId);
+            writer.Write(MessageUid);
         }
 
         public virtual void Deserialize(BinaryReader reader)
         {
-            MessageId = reader.ReadUInt16();
+            MessageUid = reader.ReadUInt16();
         }
     }
 }

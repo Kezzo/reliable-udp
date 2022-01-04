@@ -17,8 +17,9 @@ namespace ReliableUDP
             receiver = new MessageReceiver(udpClient);
         }
 
-        public void RegisterMessageFactory<T>(byte messageTypeId, IMessageFactory factory)
+        public void RegisterMessageFactory<T>(ushort messageTypeId, IMessageFactory factory)
         {
+            sender.RegisterMessageTypeId(typeof(T), messageTypeId);
             receiver.RegisterMessageFactory<T>(messageTypeId, factory);
         }
 

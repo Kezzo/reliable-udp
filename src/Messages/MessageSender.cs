@@ -12,9 +12,10 @@ namespace ReliableUDP.Messages
         private readonly PacketSender packetSender;
         private readonly SequenceBuffer<BaseMessage> messagesToSend;
         private readonly SequenceBuffer<List<ushort>> packetToMessageLookup;
+        private Dictionary<Type, ushort> messageTypeIds;
 
         private ushort oldestUnackedMessageId = 0;
-        private ushort nextMessageIdToSend = 0;
+        private ushort nextMessageUidToSend = 0;
 
         // Keep packet at this max or below to avoid ip packet fragmentation
         // and allow each packet to be transmitted in one ethernet frame
@@ -25,7 +26,19 @@ namespace ReliableUDP.Messages
             packetSender = new PacketSender(udpClient);
             messagesToSend = new SequenceBuffer<BaseMessage>();
             packetToMessageLookup = new SequenceBuffer<List<ushort>>();
+            messageTypeIds = new Dictionary<Type, ushort>();
         }
+
+        public void RegisterMessageTypeId(Type type, ushort messageTypeId)
+        {
+            if(messageTypeIds.ContainsKey(type))
+            {
+                throw new InvalidOperationException("Message type with id was already registered.");
+            }
+
+            messageTypeIds.Add(type, messageTypeId);
+        }
+
         public void AckMessages(List<ushort> acks)
         {
             if(acks == null)
@@ -47,10 +60,20 @@ namespace ReliableUDP.Messages
                 return;
             }
 
-            message.MessageId = nextMessageIdToSend;
-            messagesToSend.AddEntry(nextMessageIdToSend, message);
+            if(!messageTypeIds.TryGetValue(message.GetType(), out ushort messageTypeId))
+            {
+                throw new InvalidOperationException("Message type has no registered message type id");
+            }
+            
+            // Set all BaseMessage fields to correct and intial values
+            message.MessageTypeId = messageTypeId;
+            message.MessageUid = nextMessageUidToSend;
+            message.IsAcked = false;
+            message.LastSentTimestamp = null;
 
-            nextMessageIdToSend++;
+            messagesToSend.AddEntry(nextMessageUidToSend, message);
+
+            nextMessageUidToSend++;
         }
 
         public async Task SendQueuedMessages(long timestampNow, PacketHeader headerToUse)
@@ -157,8 +180,8 @@ namespace ReliableUDP.Messages
 
                 // overwrite send buffer entry with new sent time
                 message.LastSentTimestamp = timestampNow;
-                messagesToSend.AddEntry(message.MessageId, message);
-                messageIds.Add(message.MessageId);
+                messagesToSend.AddEntry(message.MessageUid, message);
+                messageIds.Add(message.MessageUid);
             }
 
             ms.Dispose();
