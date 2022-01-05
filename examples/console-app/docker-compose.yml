@@ -1,0 +1,28 @@
+# this compose file is used to easily start up two console example apps
+version: '3'
+
+services:
+
+  console-app-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BIND-PORT=1337
+      - TARGET-HOST=console-app-2
+      - TARGET-PORT=1338
+    restart: unless-stopped
+    ports:
+      - "1337:1337/udp"
+  
+  console-app-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BIND-PORT=1338
+      - TARGET-HOST=console-app-1
+      - TARGET-PORT=1337
+    restart: unless-stopped
+    ports:
+      - "1338:1338/udp"
