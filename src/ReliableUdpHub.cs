@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ReliableUdp.MessageFactory;
 using ReliableUdp.Messages;
+using ReliableUdp.Timestamp;
 
 namespace ReliableUdp
 {
@@ -10,11 +11,18 @@ namespace ReliableUdp
     {
         private readonly MessageSender sender;
         private readonly MessageReceiver receiver;
+        private readonly ITimestampProvider timestampProvider;
 
-        public ReliableUdpHub(IUdpClient udpClient)
+        public ReliableUdpHub(IUdpClient udpClient, ITimestampProvider timestampProvider = null)
         {
             sender = new MessageSender(udpClient);
             receiver = new MessageReceiver(udpClient);
+
+            this.timestampProvider = timestampProvider;
+            if(timestampProvider == null)
+            {
+                this.timestampProvider = new TimestampProvider();
+            }
         }
 
         public void RegisterMessageFactory<T>(ushort messageTypeId, IMessageFactory factory)
@@ -30,8 +38,7 @@ namespace ReliableUdp
 
         public Task SendQueuedMessages()
         {
-            long utcTimestamp = (long) (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
-            return sender.SendQueuedMessages(utcTimestamp, receiver.CreateNextHeader());
+            return sender.SendQueuedMessages(timestampProvider.GetCurrentTimestamp(), receiver.CreateNextHeader());
         }
 
         public async Task<List<BaseMessage>> GetReceivedMessages()
