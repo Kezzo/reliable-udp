@@ -57,6 +57,56 @@ namespace ReliableUdp.Tests
             TestMessagesReceivedInOrder(await hub2.GetReceivedMessages(), msg5, msg6);
         }
 
+        [Fact]
+        public async void TestReliableReceival()
+        {
+            var timestampProvider = new MockTimestampProvider();
+            var udpClient1 = new MockUdpClient(null);
+            var hub1 = new ReliableUdpHub(udpClient1, timestampProvider);
+            hub1.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
+
+            var udpClient2 = new MockUdpClient(null);
+            var hub2 = new ReliableUdpHub(udpClient2);
+            hub2.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
+
+            // so clients forward datagrams to each other
+            udpClient1.ConnectToClient(udpClient2);
+            udpClient2.ConnectToClient(udpClient1);
+
+            var msg1 = new TestMessage { ID = 0, Payload = new byte[] { 3, 4, 5, 6} };
+            hub1.QueueMessage(msg1);
+
+            udpClient1.DropNextOutgoingPacket();
+
+            await hub1.SendQueuedMessages();
+            // since outgoing message was dropped, none received here
+            Assert.Empty(await hub2.GetReceivedMessages());
+
+            timestampProvider.SetTimestamp(50);
+
+            await hub1.SendQueuedMessages();
+            // still empty since time has not passed enough for re-send
+            Assert.Empty(await hub2.GetReceivedMessages());
+
+            timestampProvider.SetTimestamp(100);
+
+            udpClient2.DropNextIncomingPacket();
+
+            await hub1.SendQueuedMessages();
+            // since incoming message was dropped, none received here
+            Assert.Empty(await hub2.GetReceivedMessages());
+
+            await hub1.SendQueuedMessages();
+            // again empty since time has not passed enough for re-send
+            Assert.Empty(await hub2.GetReceivedMessages());
+
+            timestampProvider.SetTimestamp(200);
+
+            await hub1.SendQueuedMessages();
+            // msg should be received now since enough time has passed for re-send
+            TestMessagesReceivedInOrder(await hub2.GetReceivedMessages(), msg1);
+        }
+
         private void TestMessagesReceivedInOrder(List<BaseMessage> recvMsgs, params TestMessage[] sentMsgs)
         {
             Assert.Equal(sentMsgs.Length, recvMsgs.Count);
