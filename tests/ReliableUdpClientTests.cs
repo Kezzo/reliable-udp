@@ -7,17 +7,17 @@ using Xunit;
 
 namespace ReliableUdp.Tests
 {
-    public class ReliableUdpHubTests
+    public class ReliableUdpClientTests
     {
         [Fact]
         public async void TestSendAndReceive()
         {
             var udpClient1 = new MockUdpClient(null);
-            var hub1 = new ReliableUdpHub(udpClient1);
+            var hub1 = new ReliableUdpClient(udpClient1);
             hub1.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
 
             var udpClient2 = new MockUdpClient(null);
-            var hub2 = new ReliableUdpHub(udpClient2);
+            var hub2 = new ReliableUdpClient(udpClient2);
             hub2.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
 
             // so clients forward datagrams to each other
@@ -62,11 +62,11 @@ namespace ReliableUdp.Tests
         {
             var timestampProvider = new MockTimestampProvider();
             var udpClient1 = new MockUdpClient(null);
-            var hub1 = new ReliableUdpHub(udpClient1, timestampProvider);
+            var hub1 = new ReliableUdpClient(udpClient1, timestampProvider);
             hub1.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
 
             var udpClient2 = new MockUdpClient(null);
-            var hub2 = new ReliableUdpHub(udpClient2);
+            var hub2 = new ReliableUdpClient(udpClient2);
             hub2.RegisterMessageFactory<TestMessage>(10, new MessageFactory<TestMessage>());
 
             // so clients forward datagrams to each other

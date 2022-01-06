@@ -7,13 +7,13 @@ using ReliableUdp.Timestamp;
 
 namespace ReliableUdp
 {
-    public class ReliableUdpHub
+    public class ReliableUdpClient
     {
         private readonly MessageSender sender;
         private readonly MessageReceiver receiver;
         private readonly ITimestampProvider timestampProvider;
 
-        public ReliableUdpHub(IUdpClient udpClient, ITimestampProvider timestampProvider = null)
+        public ReliableUdpClient(IUdpClient udpClient, ITimestampProvider timestampProvider = null)
         {
             sender = new MessageSender(udpClient);
             receiver = new MessageReceiver(udpClient);
