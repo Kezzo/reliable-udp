@@ -1,0 +1,14 @@
+# this compose file is used to easily start up two console example apps
+version: '3'
+
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BIND-PORT=1337
+    restart: unless-stopped
+    ports:
+      - "1337:1337/udp"
