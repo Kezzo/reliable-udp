@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFrameworks>netstandard1.0;netstandard2.0</TargetFrameworks>
     <PackageId>ReliableUdp</PackageId>
     <Version>1.0.1-alpha</Version>
     <Authors>Kezzo</Authors>
