@@ -10,8 +10,10 @@ namespace ReliableUdp.Tests.Messages
 {
     public class MessageSenderTests
     {
-        [Fact]
-        public void TestMessageQueueingFieldSetup()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TestMessageQueueingFieldSetup(bool sendReliable)
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
@@ -24,10 +26,10 @@ namespace ReliableUdp.Tests.Messages
                 MessageUid = 49345 
             };
 
-            Assert.Throws<InvalidOperationException>(() => messageSender.QueueMessage(msg1));
+            Assert.Throws<InvalidOperationException>(() => messageSender.QueueMessage(msg1, true));
 
             messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
-            messageSender.QueueMessage(msg1);
+            messageSender.QueueMessage(msg1, sendReliable);
 
             // check if falsely set fields have been reset correctly
             Assert.False(msg1.IsAcked);
@@ -36,8 +38,10 @@ namespace ReliableUdp.Tests.Messages
             Assert.Equal(0, msg1.MessageUid);
         }
         
-        [Fact]
-        public async void TestQueueingAndSendingMessages()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async void TestQueueingAndSendingMessages(bool sendReliable)
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
@@ -47,41 +51,43 @@ namespace ReliableUdp.Tests.Messages
             var msg2 = new TestMessage{ ID = 1 };
             var msg3 = new TestMessage{ ID = 2 };
 
-            messageSender.QueueMessage(msg1);
-            messageSender.QueueMessage(msg2);
-            messageSender.QueueMessage(msg3);
+            messageSender.QueueMessage(msg1, sendReliable);
+            messageSender.QueueMessage(msg2, sendReliable);
+            messageSender.QueueMessage(msg3, sendReliable);
 
             // no message should be sent yet
             Assert.Empty(udpClient.SentDatagrams);
 
             await messageSender.SendQueuedMessages(0, new PacketHeader());
 
-            // all message packed into one packet
+            // all messages packed into one packet
             Assert.Single(udpClient.SentDatagrams);
 
             TestMessagesIncludedInPacket(udpClient.SentDatagrams[0], msg1, msg2, msg3);
         }
 
-        [Fact]
-        public async void TestPayloadConstructionMessageSize()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async void TestPayloadConstructionMessageSize(bool sendReliable)
         {
             var udpClient = new MockUdpClient(null);
             var messageSender = new MessageSender(udpClient);
             messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
 
-            var msg1 = new TestMessage{ ID = 0, Payload = new byte[237] };
+            var msg1 = new TestMessage{ ID = 0, Payload = new byte[236] };
 
             // too big message to fit into regular max payload size, will be sent separately
             var msg2 = new TestMessage{ ID = 1, Payload = new byte[1000] };
 
             // too big to fit into same packet as msg1, will be sent in next packet
             var msg3 = new TestMessage{ ID = 2, Payload = new byte[300] };
-            var msg4 = new TestMessage{ ID = 3, Payload = new byte[247] };
+            var msg4 = new TestMessage{ ID = 3, Payload = new byte[246] };
 
-            messageSender.QueueMessage(msg1);
-            messageSender.QueueMessage(msg2);
-            messageSender.QueueMessage(msg3);
-            messageSender.QueueMessage(msg4);
+            messageSender.QueueMessage(msg1, sendReliable);
+            messageSender.QueueMessage(msg2, sendReliable);
+            messageSender.QueueMessage(msg3, sendReliable);
+            messageSender.QueueMessage(msg4, sendReliable);
 
             // no message should be sent yet
             Assert.Empty(udpClient.SentDatagrams);
@@ -106,24 +112,26 @@ namespace ReliableUdp.Tests.Messages
             var msg1 = new TestMessage{ ID = 0 };
             var msg2 = new TestMessage{ ID = 1 };
 
-            messageSender.QueueMessage(msg1);
-            messageSender.QueueMessage(msg2);
+            messageSender.QueueMessage(msg1, true);
+            messageSender.QueueMessage(msg2, true);
             Assert.Empty(udpClient.SentDatagrams);
             await messageSender.SendQueuedMessages(0, new PacketHeader());
             Assert.Single(udpClient.SentDatagrams);
             TestMessagesIncludedInPacket(udpClient.SentDatagrams[0], msg1, msg2);
 
             var msg3 = new TestMessage{ ID = 2 };
-            messageSender.QueueMessage(msg3);
+            var msg4 = new TestMessage{ ID = 2 };
+            messageSender.QueueMessage(msg3, true);
+            messageSender.QueueMessage(msg4, false);
             await messageSender.SendQueuedMessages(50, new PacketHeader());
             Assert.Equal(2, udpClient.SentDatagrams.Count);
-            TestMessagesIncludedInPacket(udpClient.SentDatagrams[1], msg3);
+            TestMessagesIncludedInPacket(udpClient.SentDatagrams[1], msg3, msg4);
 
-            var msg4 = new TestMessage{ ID = 3 };
-            messageSender.QueueMessage(msg4);
+            var msg5 = new TestMessage{ ID = 3 };
+            messageSender.QueueMessage(msg5, true);
             await messageSender.SendQueuedMessages(75, new PacketHeader());
             Assert.Equal(3, udpClient.SentDatagrams.Count);
-            TestMessagesIncludedInPacket(udpClient.SentDatagrams[2], msg4);
+            TestMessagesIncludedInPacket(udpClient.SentDatagrams[2], msg5);
 
             await messageSender.SendQueuedMessages(100, new PacketHeader());
             Assert.Equal(4, udpClient.SentDatagrams.Count);
@@ -134,6 +142,7 @@ namespace ReliableUdp.Tests.Messages
 
             await messageSender.SendQueuedMessages(150, new PacketHeader());
             Assert.Equal(5, udpClient.SentDatagrams.Count);
+            // here msg4 should not be included because it was unreliable and therefore only sent once
             TestMessagesIncludedInPacket(udpClient.SentDatagrams[4], msg3);
 
             messageSender.AckMessages(new List<ushort>{ 2 });
@@ -171,6 +180,9 @@ namespace ReliableUdp.Tests.Messages
                     Assert.Equal(msg.Payload.Length, sentMsg.Payload.Length);
                 }
             }
+
+            // test that there are no extra messages
+            Assert.Equal(ms.Length, ms.Position);
         }
     }
     }

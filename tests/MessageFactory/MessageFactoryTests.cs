@@ -10,7 +10,7 @@ namespace ReliableUdp.Tests.MessageFactory
         [Fact]
         public void TestRegisterMessageFactory()
         {
-            var hub = new ReliableUdpClient(new MockUdpClient(null));
+            var hub = new ReliableUdpClient(ReceivalMode.Ordered, new MockUdpClient(null));
             
             var factory = new MessageFactory<Messages.TestMessage>();
             hub.RegisterMessageFactory<Messages.TestMessage>(0, factory);

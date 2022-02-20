@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ReliableUdp.MessageFactory;
@@ -9,14 +8,25 @@ namespace ReliableUdp
 {
     public class ReliableUdpClient
     {
+        
+        private readonly BaseMessageReceiver receiver;
         private readonly MessageSender sender;
-        private readonly MessageReceiver receiver;
         private readonly ITimestampProvider timestampProvider;
 
-        public ReliableUdpClient(IUdpClient udpClient, ITimestampProvider timestampProvider = null)
+        public ReliableUdpClient(ReceivalMode receivalMode, IUdpClient udpClient, ITimestampProvider timestampProvider = null)
         {
             sender = new MessageSender(udpClient);
-            receiver = new MessageReceiver(udpClient);
+
+            switch(receivalMode)
+            {
+                case ReceivalMode.Ordered:
+                    receiver = new OrderedMessageReceiver(udpClient);
+                    break;
+
+                case ReceivalMode.Unordered:
+                    receiver = new UnorderedMessageReceiver(udpClient);
+                    break;
+            }
 
             this.timestampProvider = timestampProvider;
             if(timestampProvider == null)
@@ -31,9 +41,9 @@ namespace ReliableUdp
             receiver.RegisterMessageFactory<T>(messageTypeId, factory);
         }
 
-        public void QueueMessage(BaseMessage message)
+        public void QueueMessage(BaseMessage message, bool sendReliable = true)
         {
-            sender.QueueMessage(message);
+            sender.QueueMessage(message, sendReliable);
         }
 
         public Task SendQueuedMessages()

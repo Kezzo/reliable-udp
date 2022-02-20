@@ -19,7 +19,7 @@ namespace ReliableUdp.Tests.Messages
             datagramsToTest.Add(GetTestDatagram(msg1));
 
             var mockUdpClient = new MockUdpClient(datagramsToTest);
-            var receiver = new MessageReceiver(mockUdpClient);
+            var receiver = new OrderedMessageReceiver(mockUdpClient);
 
             await Assert.ThrowsAsync<KeyNotFoundException>(async () => await receiver.ReceiveNextPacket());
 
@@ -37,23 +37,23 @@ namespace ReliableUdp.Tests.Messages
         }
 
         [Fact]
-        public async void TestReceiveMessagesInOrder()
+        public async void TestReceiveReliableMessagesInOrder()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
 
-            var msg0 = new TestMessage{ ID = 0, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 4, 7, 34, 200} };
-            var msg1 = new TestMessage{ ID = 1, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { 3, 5, 7, 34, 100} };
-            var msg2 = new TestMessage{ ID = 2, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { } };
-            var msg3 = new TestMessage{ ID = 3, MessageTypeId = 10, MessageUid = 3, Payload = new byte[] { 3, 7, 7, 34, 250} };
-            var msg4 = new TestMessage{ ID = 4, MessageTypeId = 10, MessageUid = 4, Payload = new byte[] { 3, 8, 7, 34, 170} };
+            var msg0 = new TestMessage{ ID = 0, IsReliable = true, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 4, 7, 34, 200} };
+            var msg1 = new TestMessage{ ID = 1, IsReliable = true, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { 3, 5, 7, 34, 100} };
+            var msg2 = new TestMessage{ ID = 2, IsReliable = true, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { } };
+            var msg3 = new TestMessage{ ID = 3, IsReliable = true, MessageTypeId = 10, MessageUid = 3, Payload = new byte[] { 3, 7, 7, 34, 250} };
+            var msg4 = new TestMessage{ ID = 4, IsReliable = true, MessageTypeId = 10, MessageUid = 4, Payload = new byte[] { 3, 8, 7, 34, 170} };
 
             datagramsToTest.Add(GetTestDatagram(msg4, msg3));
             datagramsToTest.Add(GetTestDatagram(msg1, msg2));
             datagramsToTest.Add(GetTestDatagram(msg0));
 
             var mockUdpClient = new MockUdpClient(datagramsToTest);
-            var receiver = new MessageReceiver(mockUdpClient);
+            var receiver = new OrderedMessageReceiver(mockUdpClient);
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
 
             // receive next packets
@@ -66,6 +66,96 @@ namespace ReliableUdp.Tests.Messages
             await receiver.ReceiveNextPacket();
 
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg0, msg1, msg2, msg3, msg4);
+        }
+
+        [Fact]
+        public async void TestReceiveUnreliableMessagesInBestEffortOrder()
+        {
+            // arrive out of order
+            var datagramsToTest = new List<byte[]>();
+
+            var msg0 = new TestMessage{ ID = 0, IsReliable = false, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 4, 7, 34, 200} };
+            var msg1 = new TestMessage{ ID = 1, IsReliable = false, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { 3, 5, 7, 34, 100} };
+            var msg2 = new TestMessage{ ID = 2, IsReliable = false, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { } };
+            var msg3 = new TestMessage{ ID = 3, IsReliable = false, MessageTypeId = 10, MessageUid = 3, Payload = new byte[] { 3, 7, 7, 34, 250} };
+            var msg4 = new TestMessage{ ID = 4, IsReliable = false, MessageTypeId = 10, MessageUid = 4, Payload = new byte[] { 3, 8, 7, 34, 170} };
+            var msg5 = new TestMessage{ ID = 5, IsReliable = false, MessageTypeId = 10, MessageUid = 5, Payload = new byte[] { 3, 8, 7, 34, 120} };
+
+            datagramsToTest.Add(GetTestDatagram(msg4, msg3));
+            datagramsToTest.Add(GetTestDatagram(msg1, msg2));
+            datagramsToTest.Add(GetTestDatagram(msg0, msg5));
+
+            var mockUdpClient = new MockUdpClient(datagramsToTest);
+            var receiver = new OrderedMessageReceiver(mockUdpClient);
+            receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
+
+            // receive next packets
+            await receiver.ReceiveNextPacket();
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg1, msg2, msg3, msg4);
+
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg0, msg5);
+        }
+
+        [Fact]
+        public async void TestReceiveMixedMessagesInOrder()
+        {
+            // arrive out of order
+            var datagramsToTest = new List<byte[]>();
+
+            var reliableMsg0 = new TestMessage{ ID = 0, IsReliable = true, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 4, 7, 34, 200} };
+            var reliableMsg1 = new TestMessage{ ID = 1, IsReliable = true, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { } };
+            var reliableMsg2 = new TestMessage{ ID = 2, IsReliable = true, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { 3, 8, 7, 34, 170} };
+            var unreliableMsg0 = new TestMessage{ ID = 0, IsReliable = false, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 5, 7, 34, 100} };
+            var unreliableMsg1 = new TestMessage{ ID = 1, IsReliable = false, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { 3, 7, 7, 34, 250} };
+            var unreliableMsg2 = new TestMessage{ ID = 2, IsReliable = false, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { 3, 8, 7, 34, 120} };
+
+            datagramsToTest.Add(GetTestDatagram(reliableMsg2, unreliableMsg1));
+            datagramsToTest.Add(GetTestDatagram(unreliableMsg0, reliableMsg1));
+            datagramsToTest.Add(GetTestDatagram(reliableMsg0, unreliableMsg2));
+
+            var mockUdpClient = new MockUdpClient(datagramsToTest);
+            var receiver = new OrderedMessageReceiver(mockUdpClient);
+            receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
+
+            // receive next packets
+            await receiver.ReceiveNextPacket();
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), unreliableMsg0, unreliableMsg1);
+
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg0, reliableMsg1, reliableMsg2, unreliableMsg2);
+        }
+
+        [Fact]
+        public async void TestReceiveMixedMessagesUnordered()
+        {
+            // arrive out of order
+            var datagramsToTest = new List<byte[]>();
+
+            var reliableMsg0 = new TestMessage{ ID = 0, IsReliable = true, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 4, 7, 34, 200} };
+            var reliableMsg1 = new TestMessage{ ID = 1, IsReliable = true, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { } };
+            var reliableMsg2 = new TestMessage{ ID = 2, IsReliable = true, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { 3, 8, 7, 34, 170} };
+            var unreliableMsg0 = new TestMessage{ ID = 0, IsReliable = false, MessageTypeId = 10, MessageUid = 0, Payload = new byte[] { 3, 5, 7, 34, 100} };
+            var unreliableMsg1 = new TestMessage{ ID = 1, IsReliable = false, MessageTypeId = 10, MessageUid = 1, Payload = new byte[] { 3, 7, 7, 34, 250} };
+            var unreliableMsg2 = new TestMessage{ ID = 2, IsReliable = false, MessageTypeId = 10, MessageUid = 2, Payload = new byte[] { 3, 8, 7, 34, 120} };
+
+            datagramsToTest.Add(GetTestDatagram(reliableMsg2, unreliableMsg1));
+            datagramsToTest.Add(GetTestDatagram(unreliableMsg0, reliableMsg1));
+            datagramsToTest.Add(GetTestDatagram(reliableMsg0, unreliableMsg2));
+
+            var mockUdpClient = new MockUdpClient(datagramsToTest);
+            var receiver = new UnorderedMessageReceiver(mockUdpClient);
+            receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
+
+            // receive next packets
+            await receiver.ReceiveNextPacket();
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg2, unreliableMsg1, unreliableMsg0, reliableMsg1);
+
+            await receiver.ReceiveNextPacket();
+            TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg0, unreliableMsg2);
         }
 
         private void TestReceivedCorrectlyInOrder(List<BaseMessage> receivedMsgs, params TestMessage[] msgsSent)

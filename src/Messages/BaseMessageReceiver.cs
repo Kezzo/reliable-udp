@@ -8,21 +8,23 @@ using ReliableUdp.SequenceBuffer;
 
 namespace ReliableUdp.Messages
 {
-    public class MessageReceiver
+    public abstract class BaseMessageReceiver
     {
         private readonly PacketReceiver packetReceiver;
-        private readonly SequenceBuffer<BaseMessage> receivedMessages;
         private readonly Dictionary<ushort, IMessageFactory> messageFactories;
+        protected readonly SequenceBuffer<BaseMessage> receivedReliableMessages;
+        protected readonly SequenceBuffer<BaseMessage> receivedUnreliableMessages;
 
-        // TODO: allow being receiving with any message id?
-        private ushort nextMessageIdToReceive = 0;
-
-        public MessageReceiver(IUdpClient udpClient)
+        public BaseMessageReceiver(IUdpClient udpClient)
         {
             packetReceiver = new PacketReceiver(udpClient);
-            receivedMessages = new SequenceBuffer<BaseMessage>();
             messageFactories = new Dictionary<ushort, IMessageFactory>();
+            receivedReliableMessages = new SequenceBuffer<BaseMessage>();
+            receivedUnreliableMessages = new SequenceBuffer<BaseMessage>();
         }
+
+        public abstract List<BaseMessage> GetReceivedMessages();
+        protected abstract void OnMessageReceived(BaseMessage message);
 
         public void RegisterMessageFactory<T>(ushort messageTypeId, IMessageFactory factory)
         {
@@ -32,28 +34,6 @@ namespace ReliableUdp.Messages
             }
 
             messageFactories.Add(messageTypeId, factory);
-        }
-
-        // TODO: support unordered message receival
-        public List<BaseMessage> GetReceivedMessages()
-        {
-            var messagesToReturn = new List<BaseMessage>();
-
-            while(true)
-            {
-                var nextMessage = receivedMessages.GetEntry(nextMessageIdToReceive);
-
-                if(nextMessage == null)
-                {
-                    break;
-                }
-
-                receivedMessages.RemoveEntry(nextMessageIdToReceive);
-                nextMessageIdToReceive++;
-                messagesToReturn.Add(nextMessage);
-            }
-            
-            return messagesToReturn;
         }
 
         public async Task<List<ushort>> ReceiveNextPacket()
@@ -97,9 +77,24 @@ namespace ReliableUdp.Messages
                         }
 
                         var message = factory.CreateMessage(reader);
-                        receivedMessages.AddEntry(message.MessageUid, message);
+                        HandleReceivedMessage(message);
                     }
                 }
+            }
+        }
+
+        private void HandleReceivedMessage(BaseMessage message)
+        {
+            if(message.IsReliable && receivedReliableMessages.GetEntry(message.MessageUid) == null)
+            {
+                receivedReliableMessages.AddEntry(message.MessageUid, message);
+                OnMessageReceived(message);
+            }
+            // filter out duplicates
+            else if(receivedUnreliableMessages.GetEntry(message.MessageUid) == null)
+            {
+                receivedUnreliableMessages.AddEntry(message.MessageUid, message);
+                OnMessageReceived(message);
             }
         }
     }
