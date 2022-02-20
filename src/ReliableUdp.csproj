@@ -5,17 +5,18 @@
     <PackageId>ReliableUdp</PackageId>
     <Version>1.1.0-alpha</Version>
     <Authors>Kezzo</Authors>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <Title>ReliableUdp</Title>
     <Description>.NET library that implements reliable (and optionally ordered) UDP delivery.</Description>
-    <ProjectUrl>https://github.com/Kezzo/reliable-udp</ProjectUrl>
-    <Readme>README.md</Readme>
-    <Tags>reliable;ordered;udp;game;networking;</Tags>
+    <RepositoryUrl>https://github.com/Kezzo/reliable-udp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageTags>reliable;ordered;udp;game;networking;</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-        <None Include="../LICENSE.md" Pack="true" PackagePath="LICENSE.md"/>
-        <None Include="../README.md" Pack="true" PackagePath="README.md"/>
+        <None Include="..\LICENSE.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
