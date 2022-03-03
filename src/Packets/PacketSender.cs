@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace ReliableUdp.Packets
 {
     public class PacketSender
@@ -12,13 +10,13 @@ namespace ReliableUdp.Packets
             this.udpClient = udpClient;
         }
 
-        public async Task<ushort> SendPacket(PacketHeader header, byte[] payload)
+        public ushort SendPacket(PacketHeader header, byte[] payload)
         {
             header.Sequence = nextSequence;
             nextSequence++;
 
             var bytesToSend = header.AddBytes(payload);
-            await udpClient.SendAsync(bytesToSend);
+            udpClient.Send(bytesToSend);
 
             return header.Sequence;
         }

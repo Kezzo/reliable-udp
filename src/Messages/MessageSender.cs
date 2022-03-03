@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using ReliableUdp.Packets;
 
 namespace ReliableUdp.Messages
@@ -53,7 +52,7 @@ namespace ReliableUdp.Messages
             }
         }
 
-        public async Task SendQueuedMessages(long timestampNow, PacketHeader headerToUse)
+        public void SendQueuedMessages(long timestampNow, PacketHeader headerToUse)
         {
             while(true)
             {
@@ -68,7 +67,7 @@ namespace ReliableUdp.Messages
                     return;
                 }
 
-                var packetSequence = await packetSender.SendPacket(headerToUse, payloadPacker.GetBytes());
+                var packetSequence = packetSender.SendPacket(headerToUse, payloadPacker.GetBytes());
                 reliableSender.OnPacketSent(packetSequence, reliableMessageIds);
             }
         }

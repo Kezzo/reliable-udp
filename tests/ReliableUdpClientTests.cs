@@ -12,7 +12,7 @@ namespace ReliableUdp.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async void TestSendAndOrderedReceive(bool sendReliable)
+        public void TestSendAndOrderedReceive(bool sendReliable)
         {
             var udpClient1 = new MockUdpClient(null);
             var hub1 = new ReliableUdpClient(ReceivalMode.Ordered, udpClient1);
@@ -28,13 +28,13 @@ namespace ReliableUdp.Tests
 
             var msg1 = new TestMessage { ID = 0, Payload = new byte[] { 3, 4, 5, 6} };
             hub1.QueueMessage(msg1, sendReliable);
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
 
-            TestMessagesReceivedInOrder(await hub2.GetReceivedMessages(), msg1);
+            TestMessagesReceivedInOrder(hub2.GetReceivedMessages(), msg1);
             // test if messages are only returned once
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
             // no msg returned when no received/sent
-            Assert.Empty(await hub1.GetReceivedMessages());
+            Assert.Empty(hub1.GetReceivedMessages());
 
             var msg2 = new TestMessage { ID = 2, Payload = new byte[] { 4, 4, 5, 6} };
             var msg3 = new TestMessage { ID = 3, Payload = new byte[] { 5, 4, 5, 6} };
@@ -49,18 +49,18 @@ namespace ReliableUdp.Tests
             hub1.QueueMessage(msg6);
 
             // still empty since only queing happened
-            Assert.Empty(await hub1.GetReceivedMessages());
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub1.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
-            await hub2.SendQueuedMessages();
-            await hub1.SendQueuedMessages();
+            hub2.SendQueuedMessages();
+            hub1.SendQueuedMessages();
 
-            TestMessagesReceivedInOrder(await hub1.GetReceivedMessages(), msg2, msg3, msg4);
-            TestMessagesReceivedInOrder(await hub2.GetReceivedMessages(), msg5, msg6);
+            TestMessagesReceivedInOrder(hub1.GetReceivedMessages(), msg2, msg3, msg4);
+            TestMessagesReceivedInOrder(hub2.GetReceivedMessages(), msg5, msg6);
         }
 
         [Fact]
-        public async void TestReliableOrderedReceival()
+        public void TestReliableOrderedReceival()
         {
             var timestampProvider = new MockTimestampProvider();
             var udpClient1 = new MockUdpClient(null);
@@ -80,37 +80,37 @@ namespace ReliableUdp.Tests
 
             udpClient1.DropNextOutgoingPacket();
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // since outgoing message was dropped, none received here
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(50);
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // still empty since time has not passed enough for re-send
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(100);
 
             udpClient2.DropNextIncomingPacket();
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // since incoming message was dropped, none received here
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // again empty since time has not passed enough for re-send
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(200);
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // msg should be received now since enough time has passed for re-send
-            TestMessagesReceivedInOrder(await hub2.GetReceivedMessages(), msg1);
+            TestMessagesReceivedInOrder(hub2.GetReceivedMessages(), msg1);
         }
 
         [Fact]
-        public async void TestUnreliableOrderedReceival()
+        public void TestUnreliableOrderedReceival()
         {
             var timestampProvider = new MockTimestampProvider();
             var udpClient1 = new MockUdpClient(null);
@@ -130,33 +130,33 @@ namespace ReliableUdp.Tests
 
             udpClient1.DropNextOutgoingPacket();
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // since outgoing message was dropped, none received here
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(50);
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // still empty since time has not passed enough for potential re-send
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(100);
 
             udpClient2.DropNextIncomingPacket();
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // since incoming message was dropped, none received here
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // again empty since time has not passed enough for potential re-send
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
 
             timestampProvider.SetTimestamp(200);
 
-            await hub1.SendQueuedMessages();
+            hub1.SendQueuedMessages();
             // msg should not be received now since it is unreliable
-            Assert.Empty(await hub2.GetReceivedMessages());
+            Assert.Empty(hub2.GetReceivedMessages());
         }
 
         private void TestMessagesReceivedInOrder(List<BaseMessage> recvMsgs, params TestMessage[] sentMsgs)

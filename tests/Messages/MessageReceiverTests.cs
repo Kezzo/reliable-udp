@@ -11,7 +11,7 @@ namespace ReliableUdp.Tests.Messages
     public class MessageReceiverTests
     {
         [Fact]
-        public async void TestRegisterMessageFactory()
+        public void TestRegisterMessageFactory()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
@@ -21,23 +21,23 @@ namespace ReliableUdp.Tests.Messages
             var mockUdpClient = new MockUdpClient(datagramsToTest);
             var receiver = new OrderedMessageReceiver(mockUdpClient);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(async () => await receiver.ReceiveNextPacket());
+            Assert.Throws<KeyNotFoundException>(() => receiver.ReceiveNextPacket());
 
             mockUdpClient.AddResultToReturn(GetTestDatagram(msg1));
             // add message factory with DIFFERENT message type id
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(20, new MessageFactory<Messages.TestMessage>());
-            await Assert.ThrowsAsync<KeyNotFoundException>(async () => await receiver.ReceiveNextPacket());
+            Assert.Throws<KeyNotFoundException>(() => receiver.ReceiveNextPacket());
 
             mockUdpClient.AddResultToReturn(GetTestDatagram(msg1));
             // add message factory with CORRECT message type id
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
 
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg1);
         }
 
         [Fact]
-        public async void TestReceiveReliableMessagesInOrder()
+        public void TestReceiveReliableMessagesInOrder()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
@@ -57,19 +57,19 @@ namespace ReliableUdp.Tests.Messages
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
 
             // receive next packets
-            await receiver.ReceiveNextPacket();
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
 
             // should be empty here since very first message that should be returned first has not arrived yet.
             Assert.Empty(receiver.GetReceivedMessages());
 
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
 
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg0, msg1, msg2, msg3, msg4);
         }
 
         [Fact]
-        public async void TestReceiveUnreliableMessagesInBestEffortOrder()
+        public void TestReceiveUnreliableMessagesInBestEffortOrder()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
@@ -90,16 +90,16 @@ namespace ReliableUdp.Tests.Messages
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
 
             // receive next packets
-            await receiver.ReceiveNextPacket();
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg1, msg2, msg3, msg4);
 
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), msg0, msg5);
         }
 
         [Fact]
-        public async void TestReceiveMixedMessagesInOrder()
+        public void TestReceiveMixedMessagesInOrder()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
@@ -120,16 +120,16 @@ namespace ReliableUdp.Tests.Messages
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
 
             // receive next packets
-            await receiver.ReceiveNextPacket();
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), unreliableMsg0, unreliableMsg1);
 
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg0, reliableMsg1, reliableMsg2, unreliableMsg2);
         }
 
         [Fact]
-        public async void TestReceiveMixedMessagesUnordered()
+        public void TestReceiveMixedMessagesUnordered()
         {
             // arrive out of order
             var datagramsToTest = new List<byte[]>();
@@ -150,11 +150,11 @@ namespace ReliableUdp.Tests.Messages
             receiver.RegisterMessageFactory<MessageFactory<TestMessage>>(10, new MessageFactory<Messages.TestMessage>());
 
             // receive next packets
-            await receiver.ReceiveNextPacket();
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg2, unreliableMsg1, unreliableMsg0, reliableMsg1);
 
-            await receiver.ReceiveNextPacket();
+            receiver.ReceiveNextPacket();
             TestReceivedCorrectlyInOrder(receiver.GetReceivedMessages(), reliableMsg0, unreliableMsg2);
         }
 

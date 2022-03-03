@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using ReliableUdp.SequenceBuffer;
 
 namespace ReliableUdp.Packets
@@ -15,14 +14,14 @@ namespace ReliableUdp.Packets
             this.receivedSequences = new SequenceBuffer<Tuple<bool>>();
         }
 
-        public async Task<Packet> ReceiveNextPacket()
+        public Packet ReceiveNextPacket()
         {
             if(udpClient.Available <= 0) 
             {
                 return null;
             }
 
-            var buffer = await udpClient.ReceiveAsync();
+            var buffer = udpClient.Receive();
             Packet packet = new Packet(buffer);
 
             receivedSequences.AddEntry(packet.Header.Sequence, new Tuple<bool>(true));

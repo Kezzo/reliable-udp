@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using ReliableUdp.MessageFactory;
 using ReliableUdp.Packets;
 using ReliableUdp.SequenceBuffer;
@@ -36,9 +35,9 @@ namespace ReliableUdp.Messages
             messageFactories.Add(messageTypeId, factory);
         }
 
-        public async Task<List<ushort>> ReceiveNextPacket()
+        public List<ushort> ReceiveNextPacket()
         {
-            var packet = await packetReceiver.ReceiveNextPacket();
+            var packet = packetReceiver.ReceiveNextPacket();
             if(packet == null)
             {
                 return null;

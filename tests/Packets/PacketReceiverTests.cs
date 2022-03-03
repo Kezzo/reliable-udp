@@ -8,12 +8,12 @@ namespace ReliableUdp.Tests.Packets
     public class PacketReceiverTests
     {
         [Fact]
-        public async void TestReceiveNextPacket()
+        public void TestReceiveNextPacket()
         {
             var mockUdpClient = new Mocks.MockUdpClient(null);
             var testReceiver = new PacketReceiver(mockUdpClient);
 
-            Assert.Null(await testReceiver.ReceiveNextPacket());
+            Assert.Null(testReceiver.ReceiveNextPacket());
 
             var testHeader = new PacketHeader{
                 Sequence = 23,
@@ -24,7 +24,7 @@ namespace ReliableUdp.Tests.Packets
 
             mockUdpClient.AddResultToReturn(testHeader.AddBytes(payload));
 
-            var packetToTest = await testReceiver.ReceiveNextPacket();
+            var packetToTest = testReceiver.ReceiveNextPacket();
             Assert.NotNull(packetToTest);
 
             if(packetToTest != null)
@@ -33,11 +33,11 @@ namespace ReliableUdp.Tests.Packets
                 Assert.Equal(payload, packetToTest.Payload);
             }
 
-            Assert.Null(await testReceiver.ReceiveNextPacket());
+            Assert.Null(testReceiver.ReceiveNextPacket());
         }
 
         [Fact]
-        public async void TestCreateNextHeader()
+        public void TestCreateNextHeader()
         {
             var payload = new byte[] { 5, 6, 7, 8 };
             var mockUdpClient = new Mocks.MockUdpClient(new List<byte[]>{
@@ -70,11 +70,11 @@ namespace ReliableUdp.Tests.Packets
 
             var testReceiver = new PacketReceiver(mockUdpClient);
 
-            _ = await testReceiver.ReceiveNextPacket();
-            _ = await testReceiver.ReceiveNextPacket();
-            _ = await testReceiver.ReceiveNextPacket();
-            _ = await testReceiver.ReceiveNextPacket();
-            _ = await testReceiver.ReceiveNextPacket();
+            testReceiver.ReceiveNextPacket();
+            testReceiver.ReceiveNextPacket();
+            testReceiver.ReceiveNextPacket();
+            testReceiver.ReceiveNextPacket();
+            testReceiver.ReceiveNextPacket();
 
             var headerToTest = testReceiver.CreateNextHeader();
             Assert.Equal(25, headerToTest.LastAck);

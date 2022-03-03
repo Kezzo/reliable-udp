@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ReliableUdp.Tests.Mocks
 {
@@ -54,7 +53,7 @@ namespace ReliableUdp.Tests.Mocks
             resultsToReturn.Enqueue(result);
         }
 
-        public Task<byte[]> ReceiveAsync()
+        public byte[] Receive()
         {
             if(resultsToReturn.Count == 0)
             {
@@ -62,7 +61,7 @@ namespace ReliableUdp.Tests.Mocks
                 throw new InvalidOperationException();
             }
             
-            return Task.FromResult(resultsToReturn.Dequeue());
+            return resultsToReturn.Dequeue();
         }
 
         public void DropNextOutgoingPacket()
@@ -74,12 +73,12 @@ namespace ReliableUdp.Tests.Mocks
             dropNextIncomingPacket = true;
         }
 
-        public Task<int> SendAsync(byte[] datagram)
+        public int Send(byte[] datagram)
         {
             if(dropNextOutgoingPacket)
             {
                 dropNextOutgoingPacket = false;
-                return Task.FromResult(datagram.Length);
+                return datagram.Length;
             }
 
             var datagramCopy = new byte[datagram.Length];
@@ -92,7 +91,7 @@ namespace ReliableUdp.Tests.Mocks
                 connectedClient.AddResultToReturn(datagram);
             }
 
-            return Task.FromResult(datagram.Length);
+            return datagram.Length;
         }
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using ReliableUdp.MessageFactory;
 using ReliableUdp.Messages;
 using ReliableUdp.Timestamp;
@@ -46,17 +45,17 @@ namespace ReliableUdp
             sender.QueueMessage(message, sendReliable);
         }
 
-        public Task SendQueuedMessages()
+        public void SendQueuedMessages()
         {
-            return sender.SendQueuedMessages(timestampProvider.GetCurrentTimestamp(), receiver.CreateNextHeader());
+            sender.SendQueuedMessages(timestampProvider.GetCurrentTimestamp(), receiver.CreateNextHeader());
         }
 
-        public async Task<List<BaseMessage>> GetReceivedMessages()
+        public List<BaseMessage> GetReceivedMessages()
         {
             while(true)
             {
                 // get packets and ack them until all have been handled
-                var acks = await receiver.ReceiveNextPacket();
+                var acks = receiver.ReceiveNextPacket();
                 if(acks == null)
                 {
                     break;
