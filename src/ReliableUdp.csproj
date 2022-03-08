@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.0;netstandard2.0</TargetFrameworks>
     <PackageId>ReliableUdp</PackageId>
-    <Version>1.2.0-alpha</Version>
+    <Version>1.2.1-alpha</Version>
     <Authors>Kezzo</Authors>
     <Title>ReliableUdp</Title>
     <Description>.NET library that implements reliable (and optionally ordered) UDP delivery.</Description>
