@@ -85,16 +85,22 @@ namespace ReliableUdp.Messages
 
         private void HandleReceivedMessage(BaseMessage message)
         {
-            if(message.IsReliable && receivedReliableMessages.GetEntry(message.MessageUid) == null)
+            if(message.IsReliable)
             {
-                receivedReliableMessages.AddEntry(message.MessageUid, message);
-                OnMessageReceived(message);
-            }
-            // filter out duplicates
-            else if(receivedUnreliableMessages.GetEntry(message.MessageUid) == null)
+                if(receivedReliableMessages.GetEntry(message.MessageUid) == null)
+                {
+                    receivedReliableMessages.AddEntry(message.MessageUid, message);
+                    OnMessageReceived(message);
+                }
+            } 
+            else
             {
-                receivedUnreliableMessages.AddEntry(message.MessageUid, message);
-                OnMessageReceived(message);
+                // filter out duplicates
+                if(receivedUnreliableMessages.GetEntry(message.MessageUid) == null)
+                {
+                    receivedUnreliableMessages.AddEntry(message.MessageUid, message);
+                    OnMessageReceived(message);
+                }
             }
         }
     }
