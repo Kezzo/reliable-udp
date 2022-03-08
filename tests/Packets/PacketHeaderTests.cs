@@ -81,5 +81,31 @@ namespace ReliableUdp.Tests.Packets
 
             Assert.Equal(testHeader.GetAcks(), expectedAcks);
         }
+
+        [Fact]
+        public void TestGetAcksFromFirstHeader()
+        {
+            var testHeader = new PacketHeader{
+                AckBits = 0b_0001_0100_0100_0001_1000_0100_0110_1001,
+                LastAck = 0
+            };
+
+            var expectedAcks = new List<ushort>{ 0, 65535, 65532, 65530, 65529, 65525, 65520, 65519, 65513, 65509, 65507 };
+
+            Assert.Equal(testHeader.GetAcks(), expectedAcks);
+        }
+
+        [Fact]
+        public void TestGetAcksFromSecondHeader()
+        {
+            var testHeader = new PacketHeader{
+                AckBits = 0b_0001_0100_0100_0001_1000_0100_0110_1001,
+                LastAck = 1
+            };
+
+            var expectedAcks = new List<ushort>{ 1, 0, 65533, 65531, 65530, 65526, 65521, 65520, 65514, 65510, 65508 };
+
+            Assert.Equal(testHeader.GetAcks(), expectedAcks);
+        }
     }
 }

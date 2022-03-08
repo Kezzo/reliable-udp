@@ -160,6 +160,36 @@ namespace ReliableUdp.Tests.Messages
             Assert.Equal(7, udpClient.SentDatagrams.Count);
         }
 
+        [Fact]
+        public void TestMessageSendingAfterAcking()
+        {
+            var udpClient = new MockUdpClient(null);
+            var messageSender = new MessageSender(udpClient);
+            messageSender.RegisterMessageTypeId(typeof(TestMessage), 10);
+
+            var msg1 = new TestMessage{ ID = 0 };
+            var msg2 = new TestMessage{ ID = 1 };
+
+            messageSender.QueueMessage(msg1, true);
+            messageSender.QueueMessage(msg2, true);
+            Assert.Empty(udpClient.SentDatagrams);
+
+            messageSender.SendQueuedMessages(0, new PacketHeader());
+            Assert.Single(udpClient.SentDatagrams);
+            
+            TestMessagesIncludedInPacket(udpClient.SentDatagrams[0], msg1, msg2);
+
+            messageSender.AckMessages(new List<ushort>{ 0 });
+
+            var msg3 = new TestMessage{ ID = 2 };
+            messageSender.QueueMessage(msg3, true);
+
+            messageSender.SendQueuedMessages(100, new PacketHeader());
+            Assert.Equal(2, udpClient.SentDatagrams.Count);
+
+            TestMessagesIncludedInPacket(udpClient.SentDatagrams[1], msg3);
+        }
+
         private void TestMessagesIncludedInPacket(byte[] datagram, params TestMessage[] msgs)
         {
             var packet = new Packet(datagram);
