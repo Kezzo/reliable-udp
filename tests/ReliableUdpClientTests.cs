@@ -169,6 +169,12 @@ namespace ReliableUdp.Tests
                 Assert.IsType<TestMessage>(msg);
                 var testMsg = msg as TestMessage;
 
+                // from BaseMessage
+                Assert.Equal(sentMsgs[i].MessageTypeId, testMsg.MessageTypeId);
+                Assert.Equal(sentMsgs[i].IsReliable, testMsg.IsReliable);
+                Assert.Equal(sentMsgs[i].MessageUid, testMsg.MessageUid);
+
+                // from TestMessage
                 Assert.Equal(sentMsgs[i].ID, testMsg.ID);
                 Assert.Equal(sentMsgs[i].Payload, testMsg.Payload);
             }

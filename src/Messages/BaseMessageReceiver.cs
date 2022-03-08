@@ -76,6 +76,7 @@ namespace ReliableUdp.Messages
                         }
 
                         var message = factory.CreateMessage(reader);
+                        message.MessageTypeId = messageTypeId;
                         HandleReceivedMessage(message);
                     }
                 }
