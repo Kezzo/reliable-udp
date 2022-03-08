@@ -20,9 +20,9 @@ namespace ReliableUdp.Messages
             messageTypeIds = new Dictionary<Type, ushort>();
         }
 
-        public void AckMessages(List<ushort> acks)
+        public void AckMessages(List<ushort> packetAcks)
         {
-            reliableSender.AckMessages(acks);
+            reliableSender.AckMessages(packetAcks);
         }
 
         public void QueueMessage(BaseMessage message, bool sendReliable)

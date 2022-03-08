@@ -17,16 +17,16 @@ namespace ReliableUdp.Messages
             packetToMessageLookup = new SequenceBuffer<List<ushort>>();
         }
 
-        public void AckMessages(List<ushort> acks)
+        public void AckMessages(List<ushort> packetAcks)
         {
-            if(acks == null)
+            if(packetAcks == null)
             {
                 return;
             }
 
-            for (int i = 0; i < acks.Count; i++)
+            for (int i = 0; i < packetAcks.Count; i++)
             {
-                MarkSendBufferMessagesAcked(acks[i]);
+                MarkSendBufferMessagesAcked(packetAcks[i]);
                 UpdateOldestAckedMessageId();
             }
         }
