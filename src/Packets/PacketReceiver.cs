@@ -30,23 +30,7 @@ namespace ReliableUdp.Packets
 
         public PacketHeader CreateNextHeader()
         {
-            var header = new PacketHeader{
-                LastAck = receivedSequences.MostRecentSequence,
-                AckBits = 0
-            };
-
-            UInt32 one = 1;
-            for (ushort i = 0; i < 32; i++)
-            {
-                var nextEntry = receivedSequences.GetEntry((ushort) (receivedSequences.MostRecentSequence - (i + 1)));
-                
-                if(nextEntry != null && nextEntry.Item1 == true)
-                {
-                    header.AckBits = header.AckBits | (one << i);
-                }
-            }
-
-            return header;
+            return PacketHeader.Create(receivedSequences);
         }
     }
 }
